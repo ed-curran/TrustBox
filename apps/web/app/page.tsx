@@ -1,15 +1,14 @@
-import Feature from "../components/Feature";
-import Pricing from "../components/Pricing";
-import Hero from "../components/Hero";
-import Layout from "../components/Layout/Layout";
-import SeoHead from "../components/SeoHead";
+import Hero from "../components/hero";
+import Layout from "../components/Layout/layout";
+import SeoHead from "../components/seo-head";
+
 export default function Page(): JSX.Element {
   return (
     <>
-      <SeoHead title='LaslesVPN Landing Page' />
+      <SeoHead title="LaslesVPN Landing Page" />
       <Layout>
         <Hero />
       </Layout>
     </>
-  )
+  );
 }

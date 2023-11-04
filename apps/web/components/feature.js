@@ -4,7 +4,7 @@ import Image from "next/image";
 import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import getScrollAnimation from "../utils/getScrollAnimation";
-import ScrollAnimationWrapper from "./Layout/ScrollAnimationWrapper";
+import ScrollAnimationWrapper from "./Layout/scroll-animation-wrapper";
 
 const features = [
   "Powerfull online protection.",
@@ -13,7 +13,7 @@ const features = [
   "No specific time limits."
 ]
 
-const Feature = () => {
+function Feature() {
   const scrollAnimation = useMemo(() => getScrollAnimation(), []);
 
   return (
@@ -25,10 +25,10 @@ const Feature = () => {
         <ScrollAnimationWrapper className="flex w-full justify-end">
           <motion.div className="h-full w-full p-4" variants={scrollAnimation}>
             <Image
-              src="/assets/Illustration2.png"
               alt="VPN Illustrasi"
-              quality={100}
               height={414}
+              quality={100}
+              src="/assets/Illustration2.png"
               width={508}
             />
           </motion.div>
@@ -48,8 +48,8 @@ const Feature = () => {
               <motion.li
                 className="relative circle-check custom-list"
                 custom={{duration: 2 + index}}
-                variants={scrollAnimation}
                 key={feature}
+                variants={scrollAnimation}
                 whileHover={{
                 scale : 1.1,
                 transition: {
@@ -66,6 +66,6 @@ const Feature = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Feature;

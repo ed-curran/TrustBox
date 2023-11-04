@@ -34,7 +34,7 @@ const defaultMeta = {
  * @example
  * <SeoHead title="Page's Title" />
  */
-const SeoHead = (props) => {
+function SeoHead(props) {
   const meta = {
     ...defaultMeta,
     ...props
@@ -49,52 +49,50 @@ const SeoHead = (props) => {
   return (
     <Head>
       <title>{meta.title}</title>
-      <meta name='robots' content={meta.robots} />
+      <meta content={meta.robots} name='robots' />
       <meta content={meta.description} name='description' />
-      <meta property='og:url' content={`${meta.url}`} />
-      <link rel='canonical' href={`${meta.url}`} />
+      <meta content={`${meta.url}`} property='og:url' />
+      <link href={`${meta.url}`} rel='canonical' />
       {/* Open Graph */}
-      <meta property='og:type' content={meta.type} />
-      <meta property='og:site_name' content={meta.siteName} />
-      <meta property='og:description' content={meta.description} />
-      <meta property='og:title' content={meta.title} />
-      <meta name='image' property='og:image' content={meta.image} />
+      <meta content={meta.type} property='og:type' />
+      <meta content={meta.siteName} property='og:site_name' />
+      <meta content={meta.description} property='og:description' />
+      <meta content={meta.title} property='og:title' />
+      <meta content={meta.image} name='image' property='og:image' />
       {/* Twitter */}
-      <meta name='twitter:card' content='summary_large_image' />
-      <meta name='twitter:site' content='@F2aldi' />
-      <meta name='twitter:title' content={meta.title} />
-      <meta name='twitter:description' content={meta.description} />
-      <meta name='twitter:image' content={meta.image} />
-      {meta.date && (
-        <>
-          <meta property='article:published_time' content={meta.date} />
+      <meta content='summary_large_image' name='twitter:card' />
+      <meta content='@F2aldi' name='twitter:site' />
+      <meta content={meta.title} name='twitter:title' />
+      <meta content={meta.description} name='twitter:description' />
+      <meta content={meta.image} name='twitter:image' />
+      {meta.date ? <>
+          <meta content={meta.date} property='article:published_time' />
           <meta
+            content={meta.date}
             name='publish_date'
             property='og:publish_date'
-            content={meta.date}
           />
           <meta
+            content={meta.author}
             name='author'
             property='article:author'
-            content={meta.author}
           />
-        </>
-      )}
+        </> : null}
       {/* Favicons */}
       {favicons.map((linkProps) => (
         <link key={linkProps.href} {...linkProps} />
       ))}
       {/* Windows 8 app icon */}
-      <meta name='msapplication-TileColor' content='#F53838' />
+      <meta content='#F53838' name='msapplication-TileColor' />
       <meta
-        name='msapplication-TileImage'
         content='/favicon/ms-icon-144x144.png'
+        name='msapplication-TileImage'
       />
       {/* Accent color on supported browser */}
-      <meta name='theme-color' content='#F53838' />
+      <meta content='#F53838' name='theme-color' />
     </Head>
   );
-};
+}
 
 // Favicons, other icons, and manifest definition
 const favicons = [
