@@ -5,7 +5,7 @@ import Image from "next/image";
 import {motion} from "framer-motion";
 import getScrollAnimation from "../utils/getScrollAnimation";
 import ScrollAnimationWrapper from "./Layout/scroll-animation-wrapper";
-import {LinkPrimary} from "./misc/link-primary";
+import LinkPrimary from "./misc/link-primary";
 
 function Hero({
   listUser = [
