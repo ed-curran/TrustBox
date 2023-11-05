@@ -71,7 +71,7 @@ function Hero({
             >
               <div className="flex mx-auto w-40 sm:w-auto">
                 <div className="flex items-center justify-center bg-orange-100 w-12 h-12 mr-6 rounded-full">
-                  <Image className="h-6 w-6" src={listUsers.icon} />
+                  <Image className="h-6 w-6" src={listUsers.icon} fill />
                 </div>
                 <div className="flex flex-col">
                   <p className="text-xl text-black-600 font-bold">
