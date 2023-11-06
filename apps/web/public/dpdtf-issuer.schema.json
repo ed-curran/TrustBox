@@ -1,5 +1,5 @@
 {
-  "$id": "https://trust-framework-owner-bh6con8ww-ed-curran.vercel.app/dpdtf-issuer.schema.json",
+  "$id": "https://trust-sight-demo.vercel.app/dpdtf-issuer.schema.json",
   "$schema": "https://json-schema.org/draft/2019-09/schema",
   "title": "Issuer of property data",
   "type": "object",
