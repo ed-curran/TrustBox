@@ -5,7 +5,7 @@
   "validFrom": "2023-10-29T21:52:27Z",
   "version": "0.0.1",
   "entries": {
-    "http://localhost:3001/dpdtf-partipant.schema.json": {
+    "https://trust-framework-owner-bh6con8ww-ed-curran.vercel.app/dpdtf-partipant.schema.json": {
       "did:key:z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM": {
         "name": "yo",
         "domain": "https://identity.foundation"
@@ -14,7 +14,7 @@
         "credentials": ["example.com/dankest-meme.schema.json", "example.com/dankest-meme.schema.json.ld"]
       }
     },
-    "http:/localhost:3001/dpdtf-issuer.schema.json": {
+    "https://trust-framework-owner-bh6con8ww-ed-curran.vercel.app/dpdtf-issuer.schema.json": {
       "did:key:z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM": {
         "credentials": ["test"]
       },
