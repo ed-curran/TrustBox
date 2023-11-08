@@ -6,6 +6,7 @@ import {motion} from "framer-motion";
 import getScrollAnimation from "../utils/getScrollAnimation";
 import ScrollAnimationWrapper from "./Layout/scroll-animation-wrapper";
 import LinkPrimary from "./misc/link-primary";
+import LinkSecondary from "./misc/link-outline"
 
 function Hero({
   listUser = [
@@ -44,7 +45,10 @@ function Hero({
               <p className="text-black-500 mt-4 mb-6">
                 Streamlining the homebuying process with safe & trusted property data
               </p>
-              <LinkPrimary>Trust Framework</LinkPrimary>
+              <div className={'flex'}>
+              <LinkPrimary addClass={'mb-8 mr-10'}>Trust Framework</LinkPrimary>
+              <LinkSecondary addClass={'h-14 py-3 lg:py-4 px-8 lg:px-12 flex-none text-justify-center'}>Get TrustSight</LinkSecondary>
+              </div>
             </div>
             <div className="flex w-full">
               <motion.div className="h-full w-full" variants={scrollAnimation}>

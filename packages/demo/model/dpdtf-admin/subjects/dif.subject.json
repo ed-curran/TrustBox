@@ -1,0 +1,9 @@
+{
+  "dpdtf-participant": {
+    "name": "yo",
+    "domain": "https://identity.foundation"
+  },
+  "dpdtf-issuer": {
+    "credentials": ["Test"]
+  }
+}

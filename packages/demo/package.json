@@ -1,0 +1,10 @@
+{
+  "name": "demo",
+  "description": "contains a model of all the entities and trust relationships used in the demo",
+  "author": "Edward Curran",
+  "scripts": {},
+  "devDependencies": {
+    "trust-bench": "latest",
+    "@types/node": "^20.9.0"
+  }
+}

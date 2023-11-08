@@ -1,0 +1,10 @@
+{
+  "diaatf-scheme-author": {
+    "name": "dpdtf",
+    "domain": "https://dpdtf.example"
+  },
+  "dpdtf-admin/dpdtf-participant": {
+    "name": "dpdtf-admin",
+    "domain": "https:dpdtf-admin.com"
+  }
+}

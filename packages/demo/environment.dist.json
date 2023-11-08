@@ -1,0 +1,23 @@
+{
+  "entities": {
+    "dpdtf-admin": {
+      "didType": "did:web",
+      "origin": "http://localhost:3001"
+    },
+    "estate-agent": {
+      "didType": "did:key",
+      "origin": "http://localhost:3002"
+    },
+    "property-pack-provider": {
+      "didType": "did:key",
+      "origin": "http://localhost:3003"
+    },
+    "ddsit": {
+      "didType": "did:key",
+      "origin": "http://localhost:3004"
+    },
+    "dif": {
+      "did": "did:key:z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM"
+    }
+  }
+}

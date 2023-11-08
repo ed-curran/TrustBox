@@ -1,0 +1,4 @@
+*.environment.json
+*.environment-lock.json
+*-database.sqlite
+dist
