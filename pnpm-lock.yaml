@@ -206,6 +206,9 @@ importers:
       '@jest/globals':
         specifier: ^29.7.0
         version: 29.7.0
+      '@types/node':
+        specifier: ^20.9.0
+        version: 20.9.0
       '@types/uuid':
         specifier: ^9.0.6
         version: 9.0.7

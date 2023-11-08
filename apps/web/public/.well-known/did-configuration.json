@@ -1,1 +1,29 @@
-{"@context":"https://identity.foundation/.well-known/did-configuration/v1","linked_dids":[{"@context":["https://www.w3.org/2018/credentials/v1","https://identity.foundation/.well-known/did-configuration/v1"],"issuer":"did:key:z6MkhdZejzW5gmHe1X3j8A7vw1Ca9oi616hNmvo5dzDyFRvY","issuanceDate":"2023-11-08T20:03:37.965Z","expirationDate":"2033-11-02T23:00:00.000Z","type":["VerifiableCredential","DomainLinkageCredential"],"credentialSubject":{"id":"did:key:z6MkhdZejzW5gmHe1X3j8A7vw1Ca9oi616hNmvo5dzDyFRvY","origin":"http://localhost:3001"},"proof":{"type":"Ed25519Signature2018","created":"2023-11-08T20:03:38Z","verificationMethod":"did:key:z6MkhdZejzW5gmHe1X3j8A7vw1Ca9oi616hNmvo5dzDyFRvY#z6MkhdZejzW5gmHe1X3j8A7vw1Ca9oi616hNmvo5dzDyFRvY","proofPurpose":"assertionMethod","jws":"eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..eiwBo7d1q__8bUDeA2DQn308XnAONrqcvhEYaT_F7KuOD1eBHrLFvII_TDNg6nL-8rdcwOjLLnintqgsgIVPBA"}}]}
+{
+  "@context": "https://identity.foundation/.well-known/did-configuration/v1",
+  "linked_dids": [
+    {
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://identity.foundation/.well-known/did-configuration/v1"
+      ],
+      "issuer": "did:key:z6MkexBD3KM5VQv5gPVy1A4tL4HceQkcXWW17KoGVZ9pWoJe",
+      "issuanceDate": "2023-11-08T21:36:50.601Z",
+      "expirationDate": "2033-11-02T23:00:00.000Z",
+      "type": [
+        "VerifiableCredential",
+        "DomainLinkageCredential"
+      ],
+      "credentialSubject": {
+        "id": "did:key:z6MkexBD3KM5VQv5gPVy1A4tL4HceQkcXWW17KoGVZ9pWoJe",
+        "origin": "https://trust-sight-demo.vercel.app"
+      },
+      "proof": {
+        "type": "Ed25519Signature2018",
+        "created": "2023-11-08T21:36:50Z",
+        "verificationMethod": "did:key:z6MkexBD3KM5VQv5gPVy1A4tL4HceQkcXWW17KoGVZ9pWoJe#z6MkexBD3KM5VQv5gPVy1A4tL4HceQkcXWW17KoGVZ9pWoJe",
+        "proofPurpose": "assertionMethod",
+        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..GAE6_XJAZE6ALtjfPoV7RigMGCJrGDRhpdWlWvTnbQ9Ipy4AsDelU672ZbS_C78hYmBwYMydhgJI3_ifGwN_Bg"
+      }
+    }
+  ]
+}
