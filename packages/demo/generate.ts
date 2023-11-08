@@ -6,9 +6,9 @@ import {generate} from 'trust-bench'
 //and put the output in dist/local
 //and i grab the contents of that and copy it in to the public folder of the appropriate websites
 //(each dir represents an ssi entity)
-generate('local').then(() => {
-  console.log('nice');
-});
+// generate('local').then(() => {
+//   console.log('nice');
+// });
 
 generate('demo').then(() => {
   console.log('nice');
