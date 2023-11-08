@@ -36,6 +36,8 @@ async function write(
   f: FsWriteDeps,
   existingDirs = new Set<string>()
 ) {
+  console.log('write')
+  console.log({dir: command.dir, file: command.fileName, path: command.path})
   await mkDirIfNotExists(command.dir, f, existingDirs);
 
   return f
@@ -49,6 +51,7 @@ async function write(
       } as const;
     })
     .catch((reason: string) => {
+      console.log(reason)
       return {
         status: 'failure',
         message: `failed writing to file ${command.path} with error ${reason}`,

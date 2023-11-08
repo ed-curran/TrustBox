@@ -92,6 +92,8 @@ export async function bundleEntity(
         path: '', //bleh this doesn't get used should remove it?
       },
     });
+    console.log('pushed')
+    console.log(didConfiguration)
   }
 
   for (const symbol of entity.symbols) {
