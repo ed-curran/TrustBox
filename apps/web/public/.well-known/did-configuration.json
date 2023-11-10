@@ -7,8 +7,8 @@
         "https://identity.foundation/.well-known/did-configuration/v1"
       ],
       "issuer": "did:key:z6MkexBD3KM5VQv5gPVy1A4tL4HceQkcXWW17KoGVZ9pWoJe",
-      "issuanceDate": "2023-11-08T21:36:50.601Z",
-      "expirationDate": "2033-11-02T23:00:00.000Z",
+      "issuanceDate": "2023-11-10T21:19:36.420Z",
+      "expirationDate": "2033-11-04T23:00:00.000Z",
       "type": [
         "VerifiableCredential",
         "DomainLinkageCredential"
@@ -19,11 +19,12 @@
       },
       "proof": {
         "type": "Ed25519Signature2018",
-        "created": "2023-11-08T21:36:50Z",
+        "created": "2023-11-10T21:19:36Z",
         "verificationMethod": "did:key:z6MkexBD3KM5VQv5gPVy1A4tL4HceQkcXWW17KoGVZ9pWoJe#z6MkexBD3KM5VQv5gPVy1A4tL4HceQkcXWW17KoGVZ9pWoJe",
         "proofPurpose": "assertionMethod",
-        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..GAE6_XJAZE6ALtjfPoV7RigMGCJrGDRhpdWlWvTnbQ9Ipy4AsDelU672ZbS_C78hYmBwYMydhgJI3_ifGwN_Bg"
+        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..96Ab5BqVAC7AV9C37fG6UNImBY4Ui2lWo1zjUIqaAvdkjmnZVDRxgeMj3VAp2HenUYpnPSEFO3Y3Y0t9te00AA"
       }
-    }
+    },
+    "eyJraWQiOiIwNzY4NWZjOTE0OTI3ZmUyYzc4NzlmYTJlM2YxY2FlZjVjZDEyZjM2ZGM3OTQxMjhlOTYwMmY3ODNjYTdjYWVmIiwiYWxnIjoiRWREU0EifQ.eyJleHAiOjIwMTQ3NTgwMDAsInZjIjp7IkBjb250ZXh0IjpbImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxIiwiaHR0cHM6Ly9pZGVudGl0eS5mb3VuZGF0aW9uLy53ZWxsLWtub3duL2RpZC1jb25maWd1cmF0aW9uL3YxIl0sImlzc3VlciI6ImRpZDprZXk6ejZNa2V4QkQzS001VlF2NWdQVnkxQTR0TDRIY2VRa2NYV1cxN0tvR1ZaOXBXb0plIiwiaXNzdWFuY2VEYXRlIjoiMjAyMy0xMS0xMFQyMToxOTozNi40MjBaIiwiZXhwaXJhdGlvbkRhdGUiOiIyMDMzLTExLTA0VDIzOjAwOjAwLjAwMFoiLCJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwiRG9tYWluTGlua2FnZUNyZWRlbnRpYWwiXSwiY3JlZGVudGlhbFN1YmplY3QiOnsiaWQiOiJkaWQ6a2V5Ono2TWtleEJEM0tNNVZRdjVnUFZ5MUE0dEw0SGNlUWtjWFdXMTdLb0dWWjlwV29KZSIsIm9yaWdpbiI6Imh0dHBzOi8vdHJ1c3Qtc2lnaHQtZGVtby52ZXJjZWwuYXBwIn19LCJzdWIiOiJkaWQ6a2V5Ono2TWtleEJEM0tNNVZRdjVnUFZ5MUE0dEw0SGNlUWtjWFdXMTdLb0dWWjlwV29KZSIsIm5iZiI6MTY5OTY1MTE3NiwiaXNzIjoiZGlkOmtleTp6Nk1rZXhCRDNLTTVWUXY1Z1BWeTFBNHRMNEhjZVFrY1hXVzE3S29HVlo5cFdvSmUifQ.00xNyvVjFbTYiwlWrSKDtopZHcrLD-4df3CQ6Fwt1cjp-YgLiDCuNwu7MWBDbUN5Vv4gXYsY7_Uphq4yg4AiAw"
   ]
 }

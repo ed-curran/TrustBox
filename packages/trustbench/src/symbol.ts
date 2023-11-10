@@ -1,4 +1,4 @@
-import { JsonSchema, SubjectEntry } from './bundler/trustEstablishmentDoc';
+import { JsonSchema } from './bundler/trustEstablishmentDoc';
 
 export interface Entity {}
 

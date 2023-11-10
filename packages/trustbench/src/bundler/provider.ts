@@ -6,6 +6,7 @@ import type {
   CredentialPayload,
   ProofFormat,
   VerifiableCredential,
+  // @ts-expect-error
 } from '@veramo/core';
 
 export interface Provider {
@@ -13,6 +14,7 @@ export interface Provider {
   //will select an issuer based on the issuer.id field in the credential payload
   //yes this is kinda awkward
   issue(
+    did: string,
     credential: CredentialPayload,
     proofType: ProofFormat
   ): Promise<VerifiableCredential>;

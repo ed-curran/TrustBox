@@ -6,11 +6,16 @@ import {
 } from './bundler/bundler';
 import { FsReadDeps, FsWriteDeps } from './fsDeps';
 
+export type DidConfigurationConfig = {
+  jsonLd?: boolean
+  jwt?: boolean
+}
 export type EntityConfig = {
   name: string;
   didMethod: string | undefined;
   did: string | undefined;
-  origin: string | undefined;
+  origin: string  | undefined;
+  didConfiguration: DidConfigurationConfig | boolean | undefined
 };
 
 export type EnvironmentFile = {

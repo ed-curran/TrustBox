@@ -115,7 +115,7 @@ function entityToCommands(
       dir: dir,
       fileName: symbol.metadata.name,
       path: path.join(dir, `${symbol.metadata.name}.json`),
-      value: JSON.stringify(symbol.value),
+      value: JSON.stringify(symbol.value, null, 2), //pretty print
     };
   });
 }

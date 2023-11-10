@@ -130,5 +130,3 @@ export const veramoAgent = async (environmentName?: string) => {
     ],
   });
 };
-
-function generateDid(didMethod: string) {}

@@ -1,11 +1,12 @@
-import { Entries, TrustEstablishmentDoc } from './trustEstablishmentDoc';
-import { LoadedEntity } from '../symbolLoader';
-import { Subject, SymbolMetadata } from '../symbol';
-import { EntityConfig } from '../environment';
-import { v4 as uuidv4 } from 'uuid';
-import { Provider } from './provider';
+import {Entries, TrustEstablishmentDoc} from './trustEstablishmentDoc';
+import {LoadedEntity} from '../symbolLoader';
+import {Subject, SymbolMetadata} from '../symbol';
+import {DidConfigurationConfig, EntityConfig} from '../environment';
+import {v4 as uuidv4} from 'uuid';
+import {Provider} from './provider';
 import {
   IIssueCallbackArgs,
+  IIssueDomainLinkageCredentialArgs,
   ISignedDomainLinkageCredential,
   ProofFormatTypesEnum,
   WellKnownDidIssuer,
@@ -15,6 +16,8 @@ type EntityContext = {
   name: string;
   did: string;
   origin: string | undefined;
+  //we're duplicating environment config into here and it seems dumb, why are we not just passing environment through
+  didConfiguration: DidConfigurationConfig | boolean | undefined
   //this feels wrong tbh
   subjects: {
     id: string;
@@ -73,7 +76,7 @@ export async function bundleEntity(
   };
 
   //create wellknown did configuration if did or origin has changed
-  if (entityContext.origin) {
+  if (entityContext.origin && entityContext.didConfiguration) {
     //todo use lock and only regenerate when did or origin has changed
     // (!entityLock ||
     //   entityContext.origin !== entityLock.origin ||
@@ -81,6 +84,7 @@ export async function bundleEntity(
     const didConfiguration = await generateDidConfiguration(
       entityContext.did,
       entityContext.origin,
+      entityContext.didConfiguration,
       provider
     );
     agg.outputSymbols.push({
@@ -231,16 +235,21 @@ export async function createContext(
     const entityId = toEntityId(entity.entity);
     const lockedEntity = lock?.context.entities.get(entityId);
     const existingEntity = agg.entities.get(entityId);
+    const entityConfig = environment.entities.get(entityId)
+    console.log(entityConfig)
+    console.log(lockedEntity)
+    //the lock behaviour is completely fucked and makes no sense
     //wipe the subjects, because there's nothing in there that we need to keep the same
     const entityContext =
       existingEntity ??
       (lockedEntity
-        ? { ...lockedEntity, subjects: [] }
+        ? { ...lockedEntity, subjects: [], didConfiguration: entityConfig?.didConfiguration }
         : await generateEntity(
             entityId,
-            environment.entities.get(entityId),
+            entityConfig,
             provider.did
           ));
+    console.log(entityContext)
     if (!existingEntity) agg.entities.set(entityId, entityContext);
     const entityName = entity.entity.name;
 
@@ -274,8 +283,8 @@ export async function createContext(
           break;
         }
         case 'Subject': {
-          const entityId = subjectToEntityId(symbol.metadata);
-          const existingEntity = agg.entities.get(entityId);
+          const subjectEntityId = subjectToEntityId(symbol.metadata);
+          const existingEntity = agg.entities.get(subjectEntityId);
           if (existingEntity) {
             entityContext.subjects.push({
               id: existingEntity.did,
@@ -284,16 +293,19 @@ export async function createContext(
             break;
           }
 
+          const subjectEntityConfig = environment.entities.get(subjectEntityId)
           //this subject doesn't have an entity created yet
           //eagerly create one, dunno if this is a good idea
-          const lockedEntity = lock?.context.entities.get(entityId);
+          const lockedEntity = lock?.context.entities.get(subjectEntityId);
           const entity =
-            lockedEntity ??
-            (await generateEntity(
-              entityId,
-              environment.entities.get(entityId),
-              provider.did
-            ));
+            existingEntity ??
+            (lockedEntity
+              ? { ...lockedEntity, subjects: [], didConfiguration: subjectEntityConfig?.didConfiguration }
+              : await generateEntity(
+                subjectEntityId,
+                entityConfig,
+                provider.did
+              ));
           //eagerly load subjects, dunno if this is a good idea
           agg.entities.set(toEntityId(symbol.metadata), entity);
 
@@ -311,12 +323,12 @@ export async function createContext(
 }
 
 //todo: create context only from lockfile
-export async function createContextFrozen(
-  environment: Environment,
-  lock: Context | undefined
-): Promise<Context> {
-  throw Error('not implemented');
-}
+// export async function createContextFrozen(
+//   environment: Environment,
+//   lock: Context | undefined
+// ): Promise<Context> {
+//   throw Error('not implemented');
+// }
 
 async function generateEntity(
   entityId: string,
@@ -330,13 +342,21 @@ async function generateEntity(
     name: entityId,
     did,
     origin: config?.origin,
+    didConfiguration: config?.didConfiguration,
     subjects: [],
   };
 }
 
+function mapProofFormatType(proofFormat: ProofFormatTypesEnum) {
+  switch (proofFormat) {
+    case ProofFormatTypesEnum.JSON_LD: return 'lds'
+    case ProofFormatTypesEnum.JSON_WEB_TOKEN: return 'jwt'
+  }
+}
 async function generateDidConfiguration(
   did: string,
   origin: string,
+  config: DidConfigurationConfig | true,
   provider: Provider
 ) {
   //todo don't recreate this everytime
@@ -344,31 +364,44 @@ async function generateDidConfiguration(
     issueCallback: async (args: IIssueCallbackArgs) => {
       //yes i'm cheating
       const result = (await provider.issue(
+        did,
         args.credential,
-        'lds'
+        args.proofFormat ? mapProofFormatType(args.proofFormat) : 'jwt'
       )) as ISignedDomainLinkageCredential;
       console.log(result);
       return result;
     },
   });
+  const defaultedConfig: DidConfigurationConfig = config === true ? {
+    jsonLd: true,
+    jwt: true
+  } : config
 
-  const args = {
-    issuances: [
-      {
-        did: did,
-        origin: origin,
-        issuanceDate: new Date().toISOString(),
-        expirationDate: new Date(
-          new Date().getFullYear() + 10,
-          new Date().getMonth(),
-          new Date().getDay()
-        ).toISOString(),
-        options: { proofFormat: ProofFormatTypesEnum.JSON_LD },
-      },
-    ],
-  };
+  const issuance = {
+    did: did,
+    origin: origin,
+    issuanceDate: new Date().toISOString(),
+    expirationDate: new Date(
+      new Date().getFullYear() + 10,
+      new Date().getMonth(),
+      new Date().getDay()
+    ).toISOString(),
+  }
+  const issuances: IIssueDomainLinkageCredentialArgs[] = []
+  if(defaultedConfig.jsonLd) {
+    issuances.push({
+      ...issuance,
+      options: { proofFormat: ProofFormatTypesEnum.JSON_LD },
+    })
+  }
+  if(defaultedConfig.jwt) {
+    issuances.push({
+      ...issuance,
+      options: { proofFormat: ProofFormatTypesEnum.JSON_WEB_TOKEN },
+    })
+  }
 
-  return issuer.issueDidConfigurationResource(args).catch((error) => {
+  return issuer.issueDidConfigurationResource({issuances}).catch((error) => {
     throw error
   });
 }
