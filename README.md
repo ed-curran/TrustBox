@@ -31,7 +31,7 @@ Hence, TrustSight is born.
 
 > TrustSight is a trust overlay for your browser, find out more [here](https://github.com/ed-curran/TrustSight).
 
-But also, a trust framework started to come together, actually, two of them. The trust frameworks only really exists in this demo.
+But also, a trust framework started to come together, actually, two of them. The trust frameworks only really exist in this demo.
 
 But the tooling to construct trust frameworks started to come together too.
 
@@ -40,7 +40,7 @@ But the tooling to construct trust frameworks started to come together too.
 Each website used in the demo can be thought of as two parts
 
 1. The visual site - What you're familiar with, largely visual decoration for the demonstration,  hosts the backbone.
-2. The trust backbone - how the site can be identified, and make trust assertions about others. Largely hidden untill revealed by TrustSIght.
+2. The trust backbone - how the site can be identified, and make trust assertions about others. Largely hidden untill revealed by TrustSight.
 
 Each site has a NextJS app handling part 1.
 
@@ -48,7 +48,7 @@ The trust backbone is implemented as a single model, where each site is an *enti
 The model exists in the `demo-trust-backbone` package, which uses `TrustBench` to build the model into 
 pieces that can be hosted by each app, while correctly referencing each other.
 
-[**TrustBench**](packages/trustbench), for me, is the unexpected star of the show, but maybe I just need to lie down. I would recommend you check it out.
+[**TrustBench**](packages/trustbench), for me, is the unexpected star of the show, but maybe I just need a lie down. I would recommend you check it out.
 
 ### Apps
 
@@ -70,7 +70,7 @@ Namely, DID configurations and trust establishment documents.
 **[Demo Trust Backbone](packages/demo-trust-backbone)**
 
 Holds the model defining the trust backbone used by this demo, plus a script to build the model with `TrustBench`
-and put the outputs in the right Apps.
+which will put the outputs in the right Apps.
 
 
 ## The Boring Stuff
