@@ -1,32 +1,32 @@
 {
-  "id": "bbd78584-debb-4a0f-bbc3-f3f64b4079c5",
-  "author": "did:key:z6MkexBD3KM5VQv5gPVy1A4tL4HceQkcXWW17KoGVZ9pWoJe",
+  "id": "83a9110a-7ff7-4ca7-beab-fb9f247ae8d7",
+  "author": "did:key:z6MknjaTT4uEUYprupBay9iGMHuqh8uEWL1nfwMhRmWvDKbr",
   "version": "0.0.1",
   "created": "",
   "validFrom": "",
   "entries": {
-    "https://trust-sight-demo.vercel.app/topics/dpdtf-issuer.json": {
-      "did:key:z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM": {
+    "https://trust-sight-ddiatf.vercel.app/topics/dpdtf-issuer.json": {
+      "did:key:z6MkufJgXdvzeY5avL494VRcqceq5SpdSC2kdXkTCMDX3THm": {
         "credentials": [
           "Test"
         ]
       },
-      "did:key:z6MkpGVdYdqLjXrPCvBv3qiKmrWBADeb6YjyuzE736wwxrvU": {
+      "did:key:z6MkvXUMRtRL34oZQuGx955ghuV3uc3vN5Jm3uZquh6vp7of": {
         "credentials": [
           "PropertyPack"
         ]
       }
     },
-    "https://trust-sight-demo.vercel.app/topics/dpdtf-participant.json": {
-      "did:key:z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM": {
+    "https://trust-sight-ddiatf.vercel.app/topics/dpdtf-participant.json": {
+      "did:key:z6MkufJgXdvzeY5avL494VRcqceq5SpdSC2kdXkTCMDX3THm": {
         "name": "yo",
         "domain": "https://identity.foundation"
       },
-      "did:key:z6MkhrD2waCydMzr8HiywV5qDyMtxBCQ76DbXdA5E84RKT3E": {
+      "did:key:z6MkpWrXtYabGFSMAte773VXN8RLr4jyjnfFYm69WxzkBNXZ": {
         "name": "estate-agent",
         "domain": "https:estate-agent.com"
       },
-      "did:key:z6MkpGVdYdqLjXrPCvBv3qiKmrWBADeb6YjyuzE736wwxrvU": {
+      "did:key:z6MkvXUMRtRL34oZQuGx955ghuV3uc3vN5Jm3uZquh6vp7of": {
         "name": "property-pack-provider",
         "domain": "https:property-pack-provider.com"
       }

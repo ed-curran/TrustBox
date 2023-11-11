@@ -22,8 +22,8 @@ import type {
   IKeyManager,
   TAgent,
   ICredentialPlugin,
-  // the ignore has to be here for some reason
-  // @ts-expect-error
+  // @ts-expect-error this will error because we shouldn't be importing an esm only package
+  // but since we just want the types, this actually works.
 } from '@veramo/core';
 
 // This will be the name for the local sqlite database for demo purposes
@@ -31,7 +31,7 @@ const DATABASE_FILE = 'database.sqlite';
 
 function databaseFileName(environmentName?: string) {
   if (!environmentName) return DATABASE_FILE;
-  return `${environmentName}-${DATABASE_FILE}`;
+  return `${environmentName}.sqlite`;
 }
 
 // This will be the secret key for the KMS

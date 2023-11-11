@@ -1,7 +1,7 @@
 {
-  "$id": "https://trust-sight-ddiatf.vercel.app/topics/dpdtf-participant.json",
+  "$id": "https://trust-sight-ddiatf.vercel.app/diaatf-scheme-author.json",
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "title": "Member of the demo property data trust framework",
+  "title": "Scheme author of the digital identity and attributes trust framework",
   "type": "object",
   "properties": {
     "name": {

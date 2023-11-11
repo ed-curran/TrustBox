@@ -14,7 +14,7 @@ const fsReadDeps: FsReadDeps = nodeFsReadDeps(fs.promises);
 const fsWriteDeps = nodeFsWriteDeps(fs.promises);
 const pathDeps = nodePathDeps(path);
 
-export async function generate(environmentName: string, dir: string = 'model') {
+export async function build(environmentName: string, dir: string = 'model') {
   const environment = await loadEnvironment(fsReadDeps, environmentName);
   if (!environment) throw Error('got no environment');
 

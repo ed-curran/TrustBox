@@ -1,1 +1,1 @@
-export {generate} from './generate'
+export {build} from './build'

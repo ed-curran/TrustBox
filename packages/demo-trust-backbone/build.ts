@@ -1,4 +1,4 @@
-import {generate} from 'trust-bench'
+import {build} from 'trust-bench'
 
 //this needs turning into an actual cli
 //you can rename environment.dist.json to local.environment.json
@@ -6,10 +6,10 @@ import {generate} from 'trust-bench'
 //and put the output in dist/local
 //and i grab the contents of that and copy it in to the public folder of the appropriate websites
 //(each dir represents an ssi entity)
-generate('local').then(() => {
+build('local').then(() => {
   console.log('nice');
 });
 
-generate('demo').then(() => {
+build('demo').then(() => {
   console.log('nice');
 });

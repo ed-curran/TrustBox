@@ -1,0 +1,30 @@
+{
+  "@context": "https://identity.foundation/.well-known/did-configuration/v1",
+  "linked_dids": [
+    {
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://identity.foundation/.well-known/did-configuration/v1"
+      ],
+      "issuer": "did:key:z6MktBptB2Ecu72Nx6RyvQB8R8UQJJ4L4CUe5dnMMw1enZfG",
+      "issuanceDate": "2023-11-11T22:22:34.095Z",
+      "expirationDate": "2033-11-05T23:00:00.000Z",
+      "type": [
+        "VerifiableCredential",
+        "DomainLinkageCredential"
+      ],
+      "credentialSubject": {
+        "id": "did:key:z6MktBptB2Ecu72Nx6RyvQB8R8UQJJ4L4CUe5dnMMw1enZfG",
+        "origin": "https://trust-sight-ddiatf.vercel.app"
+      },
+      "proof": {
+        "type": "Ed25519Signature2018",
+        "created": "2023-11-11T22:22:34Z",
+        "verificationMethod": "did:key:z6MktBptB2Ecu72Nx6RyvQB8R8UQJJ4L4CUe5dnMMw1enZfG#z6MktBptB2Ecu72Nx6RyvQB8R8UQJJ4L4CUe5dnMMw1enZfG",
+        "proofPurpose": "assertionMethod",
+        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..t8YGr8LbkMhPB5I8tY-t56UWfA1ojn9pBnA5cAlK8PWVel3ruUf67dPsIA6AkKBzQ40uSl0xelRPXzKzM9_NDA"
+      }
+    },
+    "eyJraWQiOiJjYzBmNzQyMjJiZDZkM2RmNmQ3N2EzYjI0ZjgxODY1Y2RkMTZiYzk1ZWI0ODc5NmRhY2QwZjc5ZDc2MWEzMzAzIiwiYWxnIjoiRWREU0EifQ.eyJleHAiOjIwMTQ4NDQ0MDAsInZjIjp7IkBjb250ZXh0IjpbImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxIiwiaHR0cHM6Ly9pZGVudGl0eS5mb3VuZGF0aW9uLy53ZWxsLWtub3duL2RpZC1jb25maWd1cmF0aW9uL3YxIl0sImlzc3VlciI6ImRpZDprZXk6ejZNa3RCcHRCMkVjdTcyTng2Unl2UUI4UjhVUUpKNEw0Q1VlNWRuTU13MWVuWmZHIiwiaXNzdWFuY2VEYXRlIjoiMjAyMy0xMS0xMVQyMjoyMjozNC4wOTVaIiwiZXhwaXJhdGlvbkRhdGUiOiIyMDMzLTExLTA1VDIzOjAwOjAwLjAwMFoiLCJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwiRG9tYWluTGlua2FnZUNyZWRlbnRpYWwiXSwiY3JlZGVudGlhbFN1YmplY3QiOnsiaWQiOiJkaWQ6a2V5Ono2TWt0QnB0QjJFY3U3Mk54NlJ5dlFCOFI4VVFKSjRMNENVZTVkbk1NdzFlblpmRyIsIm9yaWdpbiI6Imh0dHBzOi8vdHJ1c3Qtc2lnaHQtZGRpYXRmLnZlcmNlbC5hcHAifX0sInN1YiI6ImRpZDprZXk6ejZNa3RCcHRCMkVjdTcyTng2Unl2UUI4UjhVUUpKNEw0Q1VlNWRuTU13MWVuWmZHIiwibmJmIjoxNjk5NzQxMzU0LCJpc3MiOiJkaWQ6a2V5Ono2TWt0QnB0QjJFY3U3Mk54NlJ5dlFCOFI4VVFKSjRMNENVZTVkbk1NdzFlblpmRyJ9.5NFb3A3gR_hTVsxc-e3AbqVEPxVEZ0b8tTfjEkv5JbYyxHyZPXdKqHUqzmful5LLO0lOw2rWpe8LM2WJwxasCA"
+  ]
+}
