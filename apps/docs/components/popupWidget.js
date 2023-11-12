@@ -18,7 +18,6 @@ const PopupWidget = () => {
   const userName = useWatch({ control, name: "name", defaultValue: "Someone" });
 
   const onSubmit = async (data, e) => {
-    console.log(data);
     await fetch("https://api.web3forms.com/submit", {
       method: "POST",
       headers: {
@@ -28,7 +27,7 @@ const PopupWidget = () => {
       body: JSON.stringify(data, null, 2),
     })
       .then(async (response) => {
-        let json = await response.json();
+        const json = await response.json();
         if (json.success) {
           setIsSuccess(true);
           setMessage(json.message);
@@ -39,10 +38,9 @@ const PopupWidget = () => {
           setMessage(json.message);
         }
       })
-      .catch((error) => {
+      .catch(() => {
         setIsSuccess(false);
         setMessage("Client Error. Please check the console.log for more info");
-        console.log(error);
       });
   };
 
