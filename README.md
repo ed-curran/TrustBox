@@ -48,7 +48,7 @@ The trust backbone is implemented as a single model, where each site is an *enti
 The model exists in the `demo-trust-backbone` package, which uses `TrustBench` to build the model into 
 pieces that can be hosted by each app, while correctly referencing each other.
 
-[**TrustBench**](packages/trustbench), for me, is the unexpected star of the show, but maybe I just need a lie down. I would recommend you check it out.
+[**TrustBench**](packages/trustbench/README.md), for me, is the unexpected star of the show, but maybe I just need a lie down. I would recommend you check it out.
 
 ### Apps
 
@@ -62,12 +62,12 @@ In each of these readmes you can find more detail about the purpose / inspiratio
 
 ### Packages
 
-[**TrustBench**](packages/trustbench)
+[**TrustBench**](packages/trustbench/README.md)
 
 A cool build tool thingy I created to help me construct the trust and SSI parts of this demo. 
 Namely, DID configurations and trust establishment documents.
 
-**[Demo Trust Backbone](packages/demo-trust-backbone)**
+**[Demo Trust Backbone](packages/demo-trust-backbone/README.md)**
 
 Holds the model defining the trust backbone used by this demo, plus a script to build the model with `TrustBench`
 which will put the outputs in the right Apps.

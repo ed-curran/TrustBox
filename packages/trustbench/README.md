@@ -33,7 +33,7 @@ because at build time we can transform it into the publish friendly representati
 
 ## How it works
 
-You can see an example of its usage [here](../demo/README.nd), used to generate the trust backbone for the TrustSight demo.
+You can see an example of its usage [here](../demo-trust-backbone/README.md), used to generate the trust backbone for the TrustSight demo.
 
 ### The Model
 A model is filesystem based.

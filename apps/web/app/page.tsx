@@ -5,7 +5,7 @@ import SeoHead from "../components/seo-head";
 export default function Page(): JSX.Element {
   return (
     <>
-      <SeoHead title="LaslesVPN Landing Page" />
+      <SeoHead title="DPDTF Landing Page" />
       <Layout>
         <Hero />
       </Layout>

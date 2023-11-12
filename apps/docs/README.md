@@ -20,7 +20,7 @@ The DDIATF site maps to the `ddsit` (Demo DSIT) entity in the model.
 ## The Site
 
 The site is based on a free, MIT licensed template: https://github.com/web3templates/nextly-template
-the original license is included in this repo at: [LICENCE](LICENSE). I modified it to use the app router, and made the site simpler.
+the original license is included in this repo at: [LICENCE](LICENSE). I pulled out some parts to make the site simpler.
 
 
 This is a standard next-js app (with tailwind for styling):
