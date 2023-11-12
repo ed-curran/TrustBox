@@ -1,18 +1,18 @@
 {
-  "id": "83db1864-21e1-433f-b394-9154b3aa1de9",
-  "author": "did:key:z6MktBptB2Ecu72Nx6RyvQB8R8UQJJ4L4CUe5dnMMw1enZfG",
+  "id": "f98dedda-365f-4e61-a797-b7dd7b3c7b8a",
+  "author": "did:key:z6Mks3G3LVLoHcoNDwhmBAddY7bmi9SuYjyPDaDxdBokkN58",
   "version": "0.0.1",
   "created": "",
   "validFrom": "",
   "entries": {
     "https://trust-sight-ddiatf.vercel.app/diaatf-scheme-author.json": {
-      "did:key:z6MknjaTT4uEUYprupBay9iGMHuqh8uEWL1nfwMhRmWvDKbr": {
+      "did:key:z6MkiFEXxn29KMZdUjty1zfT4EodtXjguicvrdfngp7HP9eA": {
         "name": "dpdtf",
         "domain": "https://dpdtf.example"
       }
     },
-    "https://trust-sight-ddiatf.vercel.app/topics/dpdtf-participant.json": {
-      "did:key:z6MknjaTT4uEUYprupBay9iGMHuqh8uEWL1nfwMhRmWvDKbr": {
+    "https://trust-sight-dpdtf.vercel.app/topics/dpdtf-participant.json": {
+      "did:key:z6MkiFEXxn29KMZdUjty1zfT4EodtXjguicvrdfngp7HP9eA": {
         "name": "dpdtf-admin",
         "domain": "https:dpdtf-admin.com"
       }

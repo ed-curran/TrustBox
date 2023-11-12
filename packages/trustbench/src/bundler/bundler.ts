@@ -67,7 +67,7 @@ export async function bundleEntity(
   //todo: make this unrepresentable
   if (!entityContext) throw Error('oops should have entity in context');
   const entityName = entity.entity.name;
-  const entityLock = lock?.context?.entities.get(entityId);
+  //const entityLock = lock?.context?.entities.get(entityId);
 
   const agg: BundledEntity = {
     name: entityName,
@@ -141,7 +141,7 @@ export async function bundleEntity(
           },
           Object.fromEntries(
             resolvedTopics.map(
-              ([topicId, topicContext]) => [topicContext.id, {}] as const
+              ([, topicContext]) => [topicContext.id, {}] as const
             )
           )
         );
@@ -303,7 +303,7 @@ export async function createContext(
               ? { ...lockedEntity, subjects: [], didConfiguration: subjectEntityConfig?.didConfiguration }
               : await generateEntity(
                 subjectEntityId,
-                entityConfig,
+                subjectEntityConfig,
                 provider.did
               ));
           //eagerly load subjects, dunno if this is a good idea
