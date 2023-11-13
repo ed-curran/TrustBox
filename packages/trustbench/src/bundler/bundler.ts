@@ -51,6 +51,7 @@ export type BundledEntity = {
   name: string;
   seen: string[];
   outputSymbols: OutputSymbol[];
+  additionalOutDir: string | undefined
 };
 
 export type EnvironmentLock = {
@@ -68,12 +69,13 @@ export async function bundleEntity(
   //todo: make this unrepresentable
   if (!entityContext) throw Error('oops should have entity in context');
   const entityName = entity.entity.name;
-  //const entityLock = lock?.context?.entities.get(entityId);
+
 
   const agg: BundledEntity = {
     name: entityName,
     seen: [],
     outputSymbols: [],
+    additionalOutDir: entityContext.additionalOutDir
   };
 
   //create wellknown did configuration if did or origin has changed
@@ -97,8 +99,6 @@ export async function bundleEntity(
         path: '', //bleh this doesn't get used should remove it?
       },
     });
-    console.log('pushed')
-    console.log(didConfiguration)
   }
 
   for (const symbol of entity.symbols) {
@@ -238,20 +238,20 @@ export async function createContext(
     const lockedEntity = lock?.context.entities.get(entityId);
     const existingEntity = agg.entities.get(entityId);
     const entityConfig = environment.entities.get(entityId)
-    console.log(entityConfig)
-    console.log(lockedEntity)
     //the lock behaviour is completely fucked and makes no sense
-    //wipe the subjects, because there's nothing in there that we need to keep the same
+    //wipe the subjects, because there's nothing in there that we need to keep the sam
+    //should be split cleanly into things that will always be passed through directly from config
+    //and things like identifiers that need merging behaviour
     const entityContext =
       existingEntity ??
       (lockedEntity
-        ? { ...lockedEntity, subjects: [], didConfiguration: entityConfig?.didConfiguration }
+        ? { ...lockedEntity, subjects: [], didConfiguration: entityConfig?.didConfiguration, additionalOutDir: entityConfig?.additionalOutDir }
         : await generateEntity(
             entityId,
             entityConfig,
             provider.did
           ));
-    console.log(entityContext)
+
     if (!existingEntity) agg.entities.set(entityId, entityContext);
     const entityName = entity.entity.name;
 
@@ -260,7 +260,6 @@ export async function createContext(
         case 'TrustEstablishmentDoc': {
           //todo: use lock
           const relativeId = toRelativeId(entityName, symbol.metadata);
-          console.log(relativeId);
           agg.trustDocs.set(relativeId, {
             id: uuidv4(),
           });
@@ -277,7 +276,6 @@ export async function createContext(
               : ''
           }${symbol.metadata.name}.json`;
 
-          console.log(id);
           //bruh
           agg.topics.set(relativeId, {
             id: id,
@@ -302,7 +300,7 @@ export async function createContext(
           const entity =
             existingEntity ??
             (lockedEntity
-              ? { ...lockedEntity, subjects: [], didConfiguration: subjectEntityConfig?.didConfiguration }
+              ? { ...lockedEntity, subjects: [], didConfiguration: subjectEntityConfig?.didConfiguration, additionalOutDir: entityConfig?.additionalOutDir }
               : await generateEntity(
                 subjectEntityId,
                 subjectEntityConfig,
@@ -371,7 +369,6 @@ async function generateDidConfiguration(
         args.credential,
         args.proofFormat ? mapProofFormatType(args.proofFormat) : 'jwt'
       )) as ISignedDomainLinkageCredential;
-      console.log(result);
       return result;
     },
   });

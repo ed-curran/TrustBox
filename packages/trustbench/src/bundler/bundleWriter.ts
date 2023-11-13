@@ -118,13 +118,15 @@ async function writeEntity(entityDir: string, entityWriteCommand: EntityWriteCom
   })
 }
 //todo delete stale outputs
+//probably calculate the disjoint and turn it into DeleteCommands
+//have to do this for the normal and additional output..annoying
 export function bundleToWriteCommand(
   dir: string,
   bundle: Bundle,
   environmentLock: EnvironmentLock | undefined,
   path: PathDeps
 ): BundleWriteCommand {
-  // const lockEntityMap = new Map(environmentLock.bundle.entities.map(entity => ([entity.name, entity])))
+   //const lockEntityMap = new Map(environmentLock.bundle.entities.map(entity => ([entity.name, entity])))
   return {
     bundleDir: dir,
     entityCommands: bundle.entities.map((entity) => {
@@ -133,7 +135,8 @@ export function bundleToWriteCommand(
       return {
         entityDir,
         commands: entityToCommands(entityDir, entity),
-        lockCommands: []
+        lockCommands: [],
+        additionalOutDir: entity.additionalOutDir
       };
     }),
   };
