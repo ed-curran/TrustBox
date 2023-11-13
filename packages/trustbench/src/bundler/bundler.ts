@@ -18,6 +18,7 @@ type EntityContext = {
   origin: string | undefined;
   //we're duplicating environment config into here and it seems dumb, why are we not just passing environment through
   didConfiguration: DidConfigurationConfig | boolean | undefined
+  additionalOutDir: string | undefined
   //this feels wrong tbh
   subjects: {
     id: string;
@@ -233,6 +234,7 @@ export async function createContext(
 
     //grossss todo: clean up this mess wtf
     const entityId = toEntityId(entity.entity);
+
     const lockedEntity = lock?.context.entities.get(entityId);
     const existingEntity = agg.entities.get(entityId);
     const entityConfig = environment.entities.get(entityId)
@@ -343,6 +345,7 @@ async function generateEntity(
     did,
     origin: config?.origin,
     didConfiguration: config?.didConfiguration,
+    additionalOutDir: config?.additionalOutDir,
     subjects: [],
   };
 }

@@ -1,0 +1,30 @@
+{
+  "@context": "https://identity.foundation/.well-known/did-configuration/v1",
+  "linked_dids": [
+    {
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://identity.foundation/.well-known/did-configuration/v1"
+      ],
+      "issuer": "did:key:z6Mkh5znvKAsL28GWrTgCDDcutcKq8cY9GCrkUKybJH1cEE4",
+      "issuanceDate": "2023-11-13T15:15:54.939Z",
+      "expirationDate": "2033-10-31T23:00:00.000Z",
+      "type": [
+        "VerifiableCredential",
+        "DomainLinkageCredential"
+      ],
+      "credentialSubject": {
+        "id": "did:key:z6Mkh5znvKAsL28GWrTgCDDcutcKq8cY9GCrkUKybJH1cEE4",
+        "origin": "http://localhost:3003"
+      },
+      "proof": {
+        "type": "Ed25519Signature2018",
+        "created": "2023-11-13T15:15:55Z",
+        "verificationMethod": "did:key:z6Mkh5znvKAsL28GWrTgCDDcutcKq8cY9GCrkUKybJH1cEE4#z6Mkh5znvKAsL28GWrTgCDDcutcKq8cY9GCrkUKybJH1cEE4",
+        "proofPurpose": "assertionMethod",
+        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..o8Sm7Iq9ri6V50om0lRCyEBJG030KXasD6NjvCfQypC-71wwc6s7PLOmot7DOPExMeTPTNnQUhOLv_6p2wvwBA"
+      }
+    },
+    "eyJraWQiOiIyNzIwOWUwMjIyMDQ1MGZhNTQ0MWFkZjI0NWU5ZTVlYWFmMjg1YTUwMWFkZDg2MWNkY2NlOWViNjkyODNlYTgxIiwiYWxnIjoiRWREU0EifQ.eyJleHAiOjIwMTQ0MTI0MDAsInZjIjp7IkBjb250ZXh0IjpbImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxIiwiaHR0cHM6Ly9pZGVudGl0eS5mb3VuZGF0aW9uLy53ZWxsLWtub3duL2RpZC1jb25maWd1cmF0aW9uL3YxIl0sImlzc3VlciI6ImRpZDprZXk6ejZNa2g1em52S0FzTDI4R1dyVGdDRERjdXRjS3E4Y1k5R0Nya1VLeWJKSDFjRUU0IiwiaXNzdWFuY2VEYXRlIjoiMjAyMy0xMS0xM1QxNToxNTo1NC45MzlaIiwiZXhwaXJhdGlvbkRhdGUiOiIyMDMzLTEwLTMxVDIzOjAwOjAwLjAwMFoiLCJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwiRG9tYWluTGlua2FnZUNyZWRlbnRpYWwiXSwiY3JlZGVudGlhbFN1YmplY3QiOnsiaWQiOiJkaWQ6a2V5Ono2TWtoNXpudktBc0wyOEdXclRnQ0REY3V0Y0txOGNZOUdDcmtVS3liSkgxY0VFNCIsIm9yaWdpbiI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMyJ9fSwic3ViIjoiZGlkOmtleTp6Nk1raDV6bnZLQXNMMjhHV3JUZ0NERGN1dGNLcThjWTlHQ3JrVUt5YkpIMWNFRTQiLCJuYmYiOjE2OTk4ODg1NTQsImlzcyI6ImRpZDprZXk6ejZNa2g1em52S0FzTDI4R1dyVGdDRERjdXRjS3E4Y1k5R0Nya1VLeWJKSDFjRUU0In0.D9Vc_Mhmh5nS9nplc94bkXSiwW0OoIIlZc18H-PG6BxQlM8L4dNh23dOAQJHj568whoSkn-DXD5IxQlYdfJoDw"
+  ]
+}

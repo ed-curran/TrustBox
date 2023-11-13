@@ -1,8 +1,6 @@
-import { Bundle, BundledEntity } from './bundler';
+import {Bundle, BundledEntity, EnvironmentLock} from './bundler';
 import { FsWriteDeps, mkDirIfNotExists, PathDeps } from '../fsDeps';
 import path from 'path';
-import fs from 'fs';
-import { nodeFsWriteDeps } from '../fsDepsNode';
 
 //you could replace all this with some generic FileWriteCommand and DirWriteCommand thing
 
@@ -17,8 +15,14 @@ type WriteCommand = {
 };
 
 type EntityWriteCommand = {
+  additionalOutDir?: string
   entityDir: string;
   commands: WriteCommand[];
+
+  //these are the write commands for the previous run
+  //we can use them to clean up from the previous one
+  //e.g. delete removed outputs
+  lockCommands: WriteCommand[]
 };
 
 type BundleWriteCommand = {
@@ -47,7 +51,7 @@ async function write(
     .then(() => {
       return {
         status: 'success',
-        value: undefined,
+        path: command.path,
       } as const;
     })
     .catch((reason: string) => {
@@ -59,6 +63,9 @@ async function write(
     });
 }
 
+//todo figure how to not make things get fucked up if
+//the write is cancelled halfway through before the lock file gets written
+//or write completes but lock file write doesn't
 export async function writeBundle(
   command: BundleWriteCommand,
   deps: Deps
@@ -71,34 +78,62 @@ export async function writeBundle(
     } catch (e) {
       //already exists so thats fine
     }
-    await deps.f.mkdir(entityWriteCommand.entityDir, { recursive: false });
     const existingDirs = new Set<string>();
-    //its pretty dodgy doing promise.all here, holy race conditions
-    const results = await Promise.all(
-      entityWriteCommand.commands.map((command) =>
-        write(command, deps.f, existingDirs)
-      )
-    );
-    results.forEach((result) => {
-      if (result.status === 'failure') {
-        console.log(`warn: couldn't write symbol - ${result.message}`);
-      }
-    });
+    await mkDirIfNotExists(entityWriteCommand.entityDir, deps.f, existingDirs);
+    await writeEntity(entityWriteCommand.entityDir, entityWriteCommand, deps, existingDirs)
+
+    //copy to additional out dir
+    if(entityWriteCommand.additionalOutDir) {
+      await writeEntity(entityWriteCommand.additionalOutDir, entityWriteCommand, deps, new Set())
+    }
   }
 }
 
+async function writeEntity(entityDir: string, entityWriteCommand: EntityWriteCommand, deps: Deps, existingDirs = new Set<string>()) {
+  const writes: WriteCommand[] = entityWriteCommand.commands.map(command => ({
+    dir: deps.path.join(entityDir, command.dir),
+    path: deps.path.join(entityDir, command.path),
+    value: command.value,
+    fileName: command.fileName
+  }))
+
+  const results = await Promise.all(
+    writes.map((command) => write(command, deps.f, existingDirs)
+    )
+  );
+
+  const writtenFiles = new Set<string>()
+  results.forEach((result) => {
+    if (result.status === 'failure') {
+      console.log(`warn: couldn't write symbol - ${result.message}`);
+    } else {
+      writtenFiles.add(result.path)
+    }
+  });
+
+  entityWriteCommand.lockCommands.map(command => {
+    if(!writtenFiles.has(command.path)) {
+      deps.f.rm(command.path)
+    }
+  })
+}
+//todo delete stale outputs
 export function bundleToWriteCommand(
   dir: string,
   bundle: Bundle,
+  environmentLock: EnvironmentLock | undefined,
   path: PathDeps
 ): BundleWriteCommand {
+  // const lockEntityMap = new Map(environmentLock.bundle.entities.map(entity => ([entity.name, entity])))
   return {
     bundleDir: dir,
     entityCommands: bundle.entities.map((entity) => {
       const entityDir = path.join(dir, entity.name);
+
       return {
         entityDir,
         commands: entityToCommands(entityDir, entity),
+        lockCommands: []
       };
     }),
   };
@@ -109,7 +144,7 @@ function entityToCommands(
   bundle: BundledEntity
 ): WriteCommand[] {
   return bundle.outputSymbols.map((symbol) => {
-    const dir = path.join(entityDir, ...symbol.metadata.namespace);
+    const dir = path.join(...symbol.metadata.namespace);
 
     return {
       dir: dir,
@@ -119,3 +154,10 @@ function entityToCommands(
     };
   });
 }
+
+// function entityToCommands(
+//   entityDir: string,
+//   bundle: WriteCommand
+// ): WriteCommand {
+//
+// }

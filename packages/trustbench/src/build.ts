@@ -44,6 +44,6 @@ export async function build(environmentName: string, dir: string = 'model') {
   };
 
   await saveEnvironmentLock(fsWriteDeps, newLock, environmentName);
-  const command = bundleToWriteCommand(`dist/${environmentName}`, result, pathDeps);
+  const command = bundleToWriteCommand(`dist/${environmentName}`, result, environment.environmentLock, pathDeps);
   await writeBundle(command, { f: fsWriteDeps, path: pathDeps });
 }

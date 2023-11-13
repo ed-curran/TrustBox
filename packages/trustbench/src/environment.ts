@@ -16,6 +16,8 @@ export type EntityConfig = {
   did: string | undefined;
   origin: string  | undefined;
   didConfiguration: DidConfigurationConfig | boolean | undefined
+
+  additionalOutDir: string | undefined
 };
 
 export type EnvironmentFile = {

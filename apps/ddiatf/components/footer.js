@@ -25,7 +25,7 @@ export default function Footer() {
 
             <div className="max-w-md mt-4 text-gray-500 dark:text-gray-400">
               The <strong className="font-medium">Demo Digital Identity and Attributes Trust Framework</strong> exists to demonstrate
-              the implementation of a trust framework using open standards.  Find out on the <a className={'underline text-blue-600 hover:text-blue-800 visited:text-purple-600'} href={'https://github.com/ed-curran/trustsight-demo/tree/main'}>github repo</a>
+              the implementation of a trust framework using open standards.  Find out on the <a className={'underline text-blue-600 hover:text-blue-800 visited:text-purple-600'} href={'https://github.com/ed-curran/trustsight-demo'}>github repo</a>
             </div>
           </div>
         </div>
