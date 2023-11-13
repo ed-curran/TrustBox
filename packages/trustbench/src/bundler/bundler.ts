@@ -300,7 +300,7 @@ export async function createContext(
           const entity =
             existingEntity ??
             (lockedEntity
-              ? { ...lockedEntity, subjects: [], didConfiguration: subjectEntityConfig?.didConfiguration, additionalOutDir: entityConfig?.additionalOutDir }
+              ? { ...lockedEntity, subjects: [], didConfiguration: subjectEntityConfig?.didConfiguration, additionalOutDir: subjectEntityConfig?.additionalOutDir }
               : await generateEntity(
                 subjectEntityId,
                 subjectEntityConfig,

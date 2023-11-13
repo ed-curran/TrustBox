@@ -1,28 +1,28 @@
 {
-  "id": "6fbf9b50-6b68-43c2-8f7d-01cfb9aa659a",
-  "author": "did:key:z6MkknWA9JnYyv6nwsh7f88fAoKovKYD8aBWwgrw8oYqoojK",
+  "id": "80ddcd3f-2304-4f1b-a4c5-7923665cb386",
+  "author": "did:key:z6MkiFEXxn29KMZdUjty1zfT4EodtXjguicvrdfngp7HP9eA",
   "version": "0.0.1",
   "created": "",
   "validFrom": "",
   "entries": {
-    "http://localhost:3001/topics/dpdtf-issuer.json": {
+    "https://trust-sight-dpdtf.vercel.app/topics/dpdtf-issuer.json": {
       "did:key:z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM": {
         "credentials": [
           "Test"
         ]
       },
-      "did:key:z6MkwYjppQFAtgGmJQLWjcC1YrCWjRZ42NQ6j3JVwe9KEeAJ": {
+      "did:key:z6MkiXbprz5tByg3cazZfWydXhoYZvEi8gDd3hQcjAE9W4Ky": {
         "credentials": [
           "PropertyPack"
         ]
       }
     },
-    "http://localhost:3001/topics/dpdtf-participant.json": {
+    "https://trust-sight-dpdtf.vercel.app/topics/dpdtf-participant.json": {
       "did:key:z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM": {
         "name": "yo",
         "domain": "https://identity.foundation"
       },
-      "did:key:z6MkwYjppQFAtgGmJQLWjcC1YrCWjRZ42NQ6j3JVwe9KEeAJ": {
+      "did:key:z6MkiXbprz5tByg3cazZfWydXhoYZvEi8gDd3hQcjAE9W4Ky": {
         "name": "property-prepper",
         "domain": "https:property-pack-provider.com"
       }
