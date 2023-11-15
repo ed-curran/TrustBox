@@ -76,7 +76,7 @@ async function toSymbol(
   const name = parts[0] as string | undefined;
   if (!name) return undefined;
   if (!symbolType) return undefined;
-  console.log(symbolType);
+
   const symbolTag = classifyFile(symbolType);
   if (!symbolTag) return undefined;
 

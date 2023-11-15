@@ -1,4 +1,0 @@
-*.environment.json
-*.environment-lock.json
-*.sqlite
-dist

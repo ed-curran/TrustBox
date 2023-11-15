@@ -39,6 +39,7 @@ export type Context = {
 
 export type Environment = {
   name: string;
+  kmsSecretKey: string;
   entities: Map<string, EntityConfig>;
 };
 

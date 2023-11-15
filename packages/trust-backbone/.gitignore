@@ -1,0 +1,10 @@
+*.environment.json
+*.environment-lock.json
+*.sqlite
+*.env
+dist
+
+#use these in our CI pipeline
+!demo.environment.json
+!demo.environment-lock.json
+!demo.sqlite

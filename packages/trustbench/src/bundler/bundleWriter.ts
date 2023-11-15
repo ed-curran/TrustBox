@@ -40,7 +40,6 @@ async function write(
   f: FsWriteDeps,
   existingDirs = new Set<string>()
 ) {
-  console.log('write')
   console.log({dir: command.dir, file: command.fileName, path: command.path})
   await mkDirIfNotExists(command.dir, f, existingDirs);
 

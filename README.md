@@ -31,9 +31,7 @@ Hence, TrustSight is born.
 
 > TrustSight is a trust overlay for your browser, find out more [here](https://github.com/ed-curran/TrustSight).
 
-But also, a trust framework started to come together, actually, two of them. The trust frameworks only really exist in this demo.
-
-But the tooling to construct trust frameworks started to come together too.
+But also, a trust framework started to come together too. And so did tooling to construct trust frameworks.
 
 ## The Implementation
 
@@ -67,7 +65,7 @@ In each of these readmes you can find more detail about the purpose / inspiratio
 A cool build tool thingy I created to help me construct the trust and SSI parts of this demo. 
 Namely, DID configurations and trust establishment documents.
 
-**[Demo Trust Backbone](packages/demo-trust-backbone/README.md)**
+**[Demo Trust Backbone](packages/trust-backbone/README.md)**
 
 Holds the model defining the trust backbone used by this demo, plus a script to build the model with `TrustBench`
 which will put the outputs in the right Apps.
@@ -75,11 +73,12 @@ which will put the outputs in the right Apps.
 
 ## The Boring Stuff
 This is turborepo repo (a turbo, repo?). Its mostly typescript.
-Frontend is mostly React and Tailwind.
+Frontend is mostly React and Tailwind. Package manager is PNPM.
+
 
 ### Utilities
 
-This Turborepo has some additional tools already setup for you:
+This Turborepo has some tools setup for you:
 
 - [TypeScript](https://www.typescriptlang.org/) for static type checking
 - [ESLint](https://eslint.org/) for code linting
@@ -93,6 +92,27 @@ To build all apps and packages, run the following command:
 pnpm build
 ```
 
+
+### Dev Setup
+
+install pnpm
+
+install dependencies
+
+```bash
+pnpm install
+```
+
+Set up a local environment with
+
+```bash
+pnpm run init
+```
+
+This will create a `local.environment.json` in `/packages/trust-backbone` for you - including a fresh `kmsSecretKey`.
+ and build a local trust backbone for the apps (e.g. with localhost origins). See [here](#changing-the-backbone) for more info.
+
+
 ### Develop
 
 To develop all apps and packages, run the following command:
@@ -101,11 +121,35 @@ To develop all apps and packages, run the following command:
 pnpm dev
 ```
 
+#### Changing the backbone
+To change the trust backbone, e.g. add new trust assertions, trust docs, entities. 
+The demo-trust-bacbone model should be updated. See the [readme](./packages/trust-backbone/README.md) for it.
 
-I haven't enabled any of the remote caching stuff, I'm not ready to be Vercel's bitch.
+
+When you change the model and want to see the changes in dev. You need run this inside `/packages/trust-backbone`.
+
+```bash
+pnpm run build local
+```
+
+Before pushing any changes, you must rebuild the trust backbone properly for deployment. 
+You need the right kmsSecretKey to do this, which only I have. 
+So let me know if you ever get to this point.
+
+```bash
+pnpm build demo
+```
+
+This should all be nicer, with dev commands setup to auto rebuild and CI to build for prod on push.
+Even then though running `pnpm build demo` would still be required to construct the lockfile correctly.
+before CI. And CI run with frozen-lockfile or whaetver (which isn't a thing yet). 
+Not sure how to deal with this its kind of annoying.
+
 
 ---
 ### Remote Caching
+
+I haven't enabled any of the remote caching stuff.
 
 Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
 

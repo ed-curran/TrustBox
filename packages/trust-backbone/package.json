@@ -1,0 +1,18 @@
+{
+  "name": "trust-backbone",
+  "description": "contains a model of all the entities and trust relationships used in the demo",
+  "author": "Edward Curran",
+  "scripts": {
+    "build": "ts-node build.ts",
+    "dev": "ts-node build.ts local",
+    "init": "ts-node init.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.9.0",
+    "@veramo/kms-local": "^5.5.3",
+    "trust-bench": "latest"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  }
+}

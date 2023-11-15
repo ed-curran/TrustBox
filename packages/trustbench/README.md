@@ -33,7 +33,7 @@ because at build time we can transform it into the publish friendly representati
 
 ## How it works
 
-You can see an example of its usage [here](../demo-trust-backbone/README.md), used to generate the trust backbone for the TrustSight demo.
+You can see an example of its usage [here](../trust-backbone/README.md), used to generate the trust backbone for the TrustSight demo.
 
 ### The Model
 A model is filesystem based.
@@ -64,6 +64,7 @@ It looks like this (currently the didType doesn't actually do anything lel, alwa
 
 ```json
 {
+  "kmsSecretKey": "<SECRET>",
   "entities": {
     "dpdtf-admin": {
       "didType": "did:web",
@@ -114,10 +115,15 @@ This is so that later, it can reuse the identifiers (like dids and resource uuid
 Unfortunately this behavour is super janky right now, so if something isn't building probably its likely that deleting the environment-lock file will help. If you delete the environment-lock you MUST also delete the 
 `{environmentName}.sqlite` file. Otherwise, the build will likely fail (I should probably fix this)
 
+
 ### The Key Management Database
 
 With the current veramo setup, keys for generated DIDs are stored in an sqlite database managed by veramo
 and dumped in whatever directory you ran `build` from. The db file looks like `{environmentName}.sqlite`
+
+### Kms Secret Key
+A kms secret key must be set to encrypt the keys (as above) with. This can be included in the environment file directly which is fine for things like dev.
+Or it can set using the environment variable `TRUSTBENCH_KMS_SECRET_KEY`. The environment variable will take precedence if both are present.
 
 ### Usage
 Currently, trust bench exports a single function:

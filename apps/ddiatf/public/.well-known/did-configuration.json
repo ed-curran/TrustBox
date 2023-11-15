@@ -6,25 +6,25 @@
         "https://www.w3.org/2018/credentials/v1",
         "https://identity.foundation/.well-known/did-configuration/v1"
       ],
-      "issuer": "did:key:z6Mks3G3LVLoHcoNDwhmBAddY7bmi9SuYjyPDaDxdBokkN58",
-      "issuanceDate": "2023-11-13T22:03:10.526Z",
-      "expirationDate": "2033-10-31T23:00:00.000Z",
+      "issuer": "did:key:z6MkkdZ93pyZohoK18h1BUtDESkbxnshjrQgSznTyeSdrNar",
+      "issuanceDate": "2023-11-15T21:00:07.316Z",
+      "expirationDate": "2033-11-02T23:00:00.000Z",
       "type": [
         "VerifiableCredential",
         "DomainLinkageCredential"
       ],
       "credentialSubject": {
-        "id": "did:key:z6Mks3G3LVLoHcoNDwhmBAddY7bmi9SuYjyPDaDxdBokkN58",
+        "id": "did:key:z6MkkdZ93pyZohoK18h1BUtDESkbxnshjrQgSznTyeSdrNar",
         "origin": "https://trust-sight-ddiatf.vercel.app"
       },
       "proof": {
         "type": "Ed25519Signature2018",
-        "created": "2023-11-13T22:03:10Z",
-        "verificationMethod": "did:key:z6Mks3G3LVLoHcoNDwhmBAddY7bmi9SuYjyPDaDxdBokkN58#z6Mks3G3LVLoHcoNDwhmBAddY7bmi9SuYjyPDaDxdBokkN58",
+        "created": "2023-11-15T21:00:07Z",
+        "verificationMethod": "did:key:z6MkkdZ93pyZohoK18h1BUtDESkbxnshjrQgSznTyeSdrNar#z6MkkdZ93pyZohoK18h1BUtDESkbxnshjrQgSznTyeSdrNar",
         "proofPurpose": "assertionMethod",
-        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..tNy9qHtbwpLRGf_7VJjmuO_xpLNd4WAoirhHh0FTMNp3g634StdiDN6PPaDFKXxq2D2q9QFYRxuuW2l9YfG-CQ"
+        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..flQ65HhU4nUQaN7KhA_Ng0xYNlQKM10l5lvdP7cUAl-NxwE6-zlV2DPt0qOlp-t-zEAx_yZvKEc3K5ZOzdbJDw"
       }
     },
-    "eyJraWQiOiJiYjAxZmM1NDg1MDBiYTg1ZDg5NDQzZThkNmM2MGEwZGMwOTg0YWZhZGQ2MDY0YTdlZTVjNjgwNTJkOTNmOThiIiwiYWxnIjoiRWREU0EifQ.eyJleHAiOjIwMTQ0MTI0MDAsInZjIjp7IkBjb250ZXh0IjpbImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxIiwiaHR0cHM6Ly9pZGVudGl0eS5mb3VuZGF0aW9uLy53ZWxsLWtub3duL2RpZC1jb25maWd1cmF0aW9uL3YxIl0sImlzc3VlciI6ImRpZDprZXk6ejZNa3MzRzNMVkxvSGNvTkR3aG1CQWRkWTdibWk5U3VZanlQRGFEeGRCb2trTjU4IiwiaXNzdWFuY2VEYXRlIjoiMjAyMy0xMS0xM1QyMjowMzoxMC41MjZaIiwiZXhwaXJhdGlvbkRhdGUiOiIyMDMzLTEwLTMxVDIzOjAwOjAwLjAwMFoiLCJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwiRG9tYWluTGlua2FnZUNyZWRlbnRpYWwiXSwiY3JlZGVudGlhbFN1YmplY3QiOnsiaWQiOiJkaWQ6a2V5Ono2TWtzM0czTFZMb0hjb05Ed2htQkFkZFk3Ym1pOVN1WWp5UERhRHhkQm9ra041OCIsIm9yaWdpbiI6Imh0dHBzOi8vdHJ1c3Qtc2lnaHQtZGRpYXRmLnZlcmNlbC5hcHAifX0sInN1YiI6ImRpZDprZXk6ejZNa3MzRzNMVkxvSGNvTkR3aG1CQWRkWTdibWk5U3VZanlQRGFEeGRCb2trTjU4IiwibmJmIjoxNjk5OTEyOTkwLCJpc3MiOiJkaWQ6a2V5Ono2TWtzM0czTFZMb0hjb05Ed2htQkFkZFk3Ym1pOVN1WWp5UERhRHhkQm9ra041OCJ9.SO1hzno7RZMBYOyt_iztrXvszW3WqSZ_ySJ4_i4D5WbGkDZavb_JnZjbSI4ftDUsJluSGq4wy8yNKZwKG1BYDw"
+    "eyJraWQiOiI1YmM5NDIwZDhhYjRlYzNiNzVhMmFkYTljOGY3OGVkNGNkODRhZmRiZjQ3NTMxODE1N2M0Yzk5YWIwZDBhYjY3IiwiYWxnIjoiRWREU0EifQ.eyJleHAiOjIwMTQ1ODUyMDAsInZjIjp7IkBjb250ZXh0IjpbImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxIiwiaHR0cHM6Ly9pZGVudGl0eS5mb3VuZGF0aW9uLy53ZWxsLWtub3duL2RpZC1jb25maWd1cmF0aW9uL3YxIl0sImlzc3VlciI6ImRpZDprZXk6ejZNa2tkWjkzcHlab2hvSzE4aDFCVXRERVNrYnhuc2hqclFnU3puVHllU2RyTmFyIiwiaXNzdWFuY2VEYXRlIjoiMjAyMy0xMS0xNVQyMTowMDowNy4zMTZaIiwiZXhwaXJhdGlvbkRhdGUiOiIyMDMzLTExLTAyVDIzOjAwOjAwLjAwMFoiLCJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwiRG9tYWluTGlua2FnZUNyZWRlbnRpYWwiXSwiY3JlZGVudGlhbFN1YmplY3QiOnsiaWQiOiJkaWQ6a2V5Ono2TWtrZFo5M3B5Wm9ob0sxOGgxQlV0REVTa2J4bnNoanJRZ1N6blR5ZVNkck5hciIsIm9yaWdpbiI6Imh0dHBzOi8vdHJ1c3Qtc2lnaHQtZGRpYXRmLnZlcmNlbC5hcHAifX0sInN1YiI6ImRpZDprZXk6ejZNa2tkWjkzcHlab2hvSzE4aDFCVXRERVNrYnhuc2hqclFnU3puVHllU2RyTmFyIiwibmJmIjoxNzAwMDgyMDA3LCJpc3MiOiJkaWQ6a2V5Ono2TWtrZFo5M3B5Wm9ob0sxOGgxQlV0REVTa2J4bnNoanJRZ1N6blR5ZVNkck5hciJ9.GicOLZMCz_X-MGt6z1hWl59yCnqYxyUrGnrSqPKvybgPs6G5PvxLf1x-JtjsV7g0inHEeocD52UKPOBCieHEAQ"
   ]
 }

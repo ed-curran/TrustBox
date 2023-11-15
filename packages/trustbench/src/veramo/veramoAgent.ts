@@ -34,10 +34,6 @@ function databaseFileName(environmentName?: string) {
   return `${environmentName}.sqlite`;
 }
 
-// This will be the secret key for the KMS
-const KMS_SECRET_KEY =
-  '8aae5757159d01c51c42e4db893b0d7c32862b8cdeb3dd045a60b68819313473';
-
 //veramo is esm only, which is actually probably a good idea
 //but i don't want to commit to converting this whole codebase to esm yet
 //and its fairly easy to isolate veramo and deal with the dynamic imports here
@@ -47,7 +43,7 @@ const KMS_SECRET_KEY =
 export type VeramoAgent = TAgent<
   IDIDManager & IKeyManager & IDataStore & IDataStoreORM & ICredentialPlugin
 >;
-export const veramoAgent = async (environmentName?: string) => {
+export const veramoAgent = async (kmsSecretKey: string, environmentName?: string, ) => {
   const { createAgent } = await import('@veramo/core');
 
   const { DIDManager } = await import('@veramo/did-manager');
@@ -89,7 +85,7 @@ export const veramoAgent = async (environmentName?: string) => {
         store: new KeyStore(dbConnection),
         kms: {
           local: new KeyManagementSystem(
-            new PrivateKeyStore(dbConnection, new SecretBox(KMS_SECRET_KEY))
+            new PrivateKeyStore(dbConnection, new SecretBox(kmsSecretKey))
           ),
         },
       }),

@@ -5,6 +5,7 @@ import {
   EnvironmentLock,
 } from './bundler/bundler';
 import { FsReadDeps, FsWriteDeps } from './fsDeps';
+import * as process from 'process'
 
 export type DidConfigurationConfig = {
   jsonLd?: boolean
@@ -21,6 +22,7 @@ export type EntityConfig = {
 };
 
 export type EnvironmentFile = {
+  kmsSecretKey: string | undefined;
   entities: Record<string, EntityConfig>;
 };
 
@@ -32,10 +34,15 @@ type WithMapsAsRecords<Type> = {
 
 function fileToEnvironment(
   name: string,
-  environmentFile: WithMapsAsRecords<Omit<Environment, 'name'>>
+  environmentFile: EnvironmentFile
 ): Environment {
+  const kmsSecretKet = process.env.TRUSTBENCH_KMS_SECRET_KEY ?? environmentFile.kmsSecretKey
+  if(!kmsSecretKet) {
+    throw Error(`please provide a kms secret key using "mksSecretKey" in the environment.json or using the TRUSTBENCH_KMS_SECRET_KEY env variable`)
+  }
   return {
     name: name,
+    kmsSecretKey: kmsSecretKet,
     entities: new Map(Object.entries(environmentFile.entities)),
   };
 }
@@ -71,6 +78,18 @@ function environmentLockToFile(lock: EnvironmentLock): EnvironmentLockFile {
   };
 }
 
+export function environmentPath(environmentName?: string) {
+ return environmentName
+    ? `./${environmentName}.environment.json`
+    : 'environment.json';
+}
+
+export function environmentLockPath(environmentName?: string) {
+  return environmentName
+    ? `./${environmentName}.environment-lock.json`
+    : 'environment-lock.json';
+}
+
 type EnvironmentWithLock =
   | { environment: Environment; environmentLock: EnvironmentLock | undefined }
   | undefined;
@@ -78,12 +97,8 @@ export async function loadEnvironment(
   fsReadDeps: FsReadDeps,
   prefix?: string
 ): Promise<EnvironmentWithLock | undefined> {
-  const environmentFilePath = prefix
-    ? `./${prefix}.environment.json`
-    : 'environment.json';
-  const environmentLockFilePath = prefix
-    ? `./${prefix}.environment-lock.json`
-    : 'environment-lock.json';
+  const environmentFilePath = environmentPath(prefix)
+  const environmentLockFilePath = environmentLockPath(prefix)
 
   const environmentJson: string | undefined = await fsReadDeps
     .readFile(environmentFilePath)
@@ -93,6 +108,7 @@ export async function loadEnvironment(
 
   if (!environmentJson) return undefined;
   const environmentFile = JSON.parse(environmentJson) as EnvironmentFile;
+
   const environment = fileToEnvironment('default', environmentFile);
 
   const environmentLockJson = await fsReadDeps

@@ -1,0 +1,30 @@
+{
+  "kmsSecretKey": "<SECRET>",
+  "entities": {
+    "ddsit": {
+      "didType": "did:key",
+      "origin": "http://localhost:3002",
+      "didConfiguration": true,
+      "additionalOutDir": "../../apps/ddiatf/public"
+    },
+    "dpdtf-admin": {
+      "didType": "did:web",
+      "origin": "http://localhost:3001",
+      "didConfiguration": true,
+      "additionalOutDir": "../../apps/dpdtf/public"
+    },
+    "property-prepper": {
+      "didType": "did:key",
+      "origin": "http://localhost:3003",
+      "didConfiguration": true,
+      "additionalOutDir": "../../apps/property-prepper/public"
+    },
+    "dif": {
+      "did": "did:key:z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM"
+    },
+    "estate-agent": {
+      "didType": "did:key",
+      "origin": "http://localhost:3002"
+    }
+  }
+}

@@ -1,1 +1,1 @@
-export {build} from './build'
+export {build, init} from './build'

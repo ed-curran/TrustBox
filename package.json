@@ -3,8 +3,10 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "init": "cd packages/trust-backbone && pnpm run init && pnpm run dev",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "setup": "cd packages/trust-backbone && pnpm run init"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.10.0",
