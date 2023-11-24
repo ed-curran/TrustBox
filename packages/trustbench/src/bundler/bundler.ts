@@ -285,7 +285,7 @@ export async function createContext(
           //need to bump versions
           //ideally i'd do some sort of compatability check to figure out how or if to bump
 
-          const docContext = entityContext.publisherDid ? (lockedTrustDoc ? {id: lockedTrustDoc.id, did: lockedTrustDoc.publisherDid} : await provider.draftTrustDoc(entityContext.publisherDid)) : {id: uuidv4(), did: undefined}
+          const docContext = lockedTrustDoc ? {id: lockedTrustDoc.id, did: lockedTrustDoc.publisherDid} : (entityContext.publisherDid ? await provider.draftTrustDoc(entityContext.publisherDid) : {id: uuidv4(), did: undefined})
           //todo: only bump version if the trust doc has actually changed
           agg.trustDocs.set(relativeId, {id: docContext.id, publisherDid: docContext.did, version: lockedTrustDoc?.version ? bumpVersion(lockedTrustDoc.version) : '1' });
           break;
