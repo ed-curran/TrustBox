@@ -28,7 +28,7 @@ export const createWeb5Agent = async (kmsSecretKey: string, environmentName?: st
   const didResolver = new DidResolver({ didResolvers: [DidIonMethod, DidKeyMethod] });
   //in the vanilla IdentityAgent, DwnManager uses a different dir to the appData store
   //here i'm putting them in the same like the UserAgent does. I don't know if thats bad.
-  const dwnManager = await DwnManager.create({ didResolver, dataPath: `${storeDir}/agent` });
+  const dwnManager = await DwnManager.create({ didResolver, dataPath: `${storeDir}/agent`});
   const syncManager = new SyncManagerLevel({dataPath: `${storeDir}/agent`});
 
   //create or get existing agent

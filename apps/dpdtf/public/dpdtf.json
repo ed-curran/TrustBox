@@ -1,18 +1,18 @@
 {
-  "id": "0d0414e0-6eae-4c8b-a253-3fd51ea7f5b3",
+  "id": "75c99463-e093-4c48-abd5-a664364a5537",
   "author": "did:key:z6MkfmjEL5mEcsJ59gupPPCTic2ExxG6bamHs9Jn4B2u9sdk",
-  "version": "1",
-  "created": "2023-11-24T22:57:06.978Z",
-  "validFrom": "2023-11-24T22:57:06.978Z",
+  "version": "2",
+  "created": "2023-11-24T23:24:56.274Z",
+  "validFrom": "2023-11-24T23:24:56.274Z",
   "entries": {
     "https://trust-sight-dpdtf.vercel.app/topics/dpdtf-participant.json": {
       "did:key:z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM": {
-        "name": "yo",
+        "name": "dif",
         "domain": "https://identity.foundation"
       },
       "did:key:z6MkrkJhzLH5JVR4e3STogD9MoMUkiaTNi6C5bVNFZtyn4WJ": {
         "name": "property-prepper",
-        "domain": "https:property-pack-provider.com"
+        "domain": "https://trust-sight-property-prepper.vercel.app/"
       }
     },
     "https://trust-sight-dpdtf.vercel.app/topics/dpdtf-issuer.json": {
