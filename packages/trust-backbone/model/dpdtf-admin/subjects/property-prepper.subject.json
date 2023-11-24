@@ -1,7 +1,7 @@
 {
     "dpdtf-participant": {
       "name": "property-prepper",
-      "domain": "https://trust-sight-property-prepper.vercel.app/"
+      "domain": "https://trust-sight-property-prepper.vercel.app"
     },
     "dpdtf-issuer": {
       "credentials": ["PropertyPack"]
