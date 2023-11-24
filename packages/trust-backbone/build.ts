@@ -1,11 +1,12 @@
-import {build} from 'trust-bench'
+import TrustBench from 'trust-bench'
 import * as dotenv from 'dotenv'
 dotenv.config({ debug: true })
 
-var args = process.argv.slice(2);
+const {build} = TrustBench
+
+const args = process.argv.slice(2);
 
 const environmentName = args[0]
-console.log(process.env.TRUSTBENCH_KMS_SECRET_KEY)
 if(!environmentName) {
   throw Error("please provide an environment name as first arg")
 }

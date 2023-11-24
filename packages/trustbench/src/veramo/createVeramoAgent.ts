@@ -43,7 +43,7 @@ function databaseFileName(environmentName?: string) {
 export type VeramoAgent = TAgent<
   IDIDManager & IKeyManager & IDataStore & IDataStoreORM & ICredentialPlugin
 >;
-export const veramoAgent = async (kmsSecretKey: string, environmentName?: string, ) => {
+export const createVeramoAgent = async (kmsSecretKey: string, environmentName?: string, ) => {
   const { createAgent } = await import('@veramo/core');
 
   const { DIDManager } = await import('@veramo/did-manager');

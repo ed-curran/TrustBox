@@ -11,6 +11,9 @@ import type {
 
 export interface Provider {
   did(alias: string, method?: string): Promise<string>;
+
+  //hacky todo remove this
+  publisherDid(alias: string): Promise<string>;
   //will select an issuer based on the issuer.id field in the credential payload
   //yes this is kinda awkward
   issue(
@@ -18,4 +21,9 @@ export interface Provider {
     credential: CredentialPayload,
     proofType: ProofFormat
   ): Promise<VerifiableCredential>;
+
+  //this creates a draft trust doc and returns the id
+  //i'm not sure this should be there
+  draftTrustDoc(did: string): Promise<{id: string, did: string}>
+
 }

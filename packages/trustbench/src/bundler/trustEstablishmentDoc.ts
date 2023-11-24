@@ -7,6 +7,9 @@ export type TrustEstablishmentDoc<T extends Entries = Entries> = {
   validFrom: string;
   version: string;
   entries: T;
+
+  //hacky custom field we use for dwn location
+  publisherDid?: string
 };
 
 export type Entries = Record<string, TopicEntry<Record<string, unknown>>>;

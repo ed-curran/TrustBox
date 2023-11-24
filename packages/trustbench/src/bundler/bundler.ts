@@ -24,7 +24,14 @@ type EntityContext = {
     id: string;
     entries: Subject;
   }[];
+
+  //hacky temporary field to handle web5 instance using a different did
+  //todo: either get veramo and web5 to use the same did
+  //or add proper multi did support
+  publisherDid?: string
 };
+
+export type TrustDocContext = { id: string, publisherDid: string | undefined, version: string }
 export type Context = {
   environmentName: string;
   entities: Map<string, EntityContext>;
@@ -34,20 +41,25 @@ export type Context = {
       id: string;
     }
   >;
-  trustDocs: Map<string, { id: string }>;
+  trustDocs: Map<string, TrustDocContext>;
+  publishWithWeb5: boolean
 };
 
 export type Environment = {
   name: string;
+  publishWithWeb5: boolean
   kmsSecretKey: string;
   entities: Map<string, EntityConfig>;
 };
 
+//todo should probably make this a proper union
+//but its okay for now cus value doesn't need to be typed
 export type OutputSymbol = {
-  type: string;
+  type: 'WellknownDidConfiguration' | 'TrustEstablishmentDoc' | 'Topic';
   metadata: SymbolMetadata;
   value: unknown;
 };
+
 export type BundledEntity = {
   name: string;
   seen: string[];
@@ -147,14 +159,21 @@ export async function bundleEntity(
             )
           )
         );
+        const now = new Date()
+        const nowIso = now.toISOString()
+        //this version has already been bumped
+        const version = trustDocContext.version
         const doc: TrustEstablishmentDoc = {
           id: trustDocContext.id,
           author: entityContext.did,
-          version: '0.0.1',
-          created: '',
-          validFrom: '',
+          version: version,
+          created: nowIso,
+          validFrom: nowIso,
           entries: entries,
         };
+        if(trustDocContext.publisherDid) {
+          doc.publisherDid = trustDocContext.publisherDid
+        }
         agg.outputSymbols.push({
           type: symbol.type,
           value: doc,
@@ -227,6 +246,7 @@ export async function createContext(
     entities: new Map(),
     topics: new Map(),
     trustDocs: new Map(),
+    publishWithWeb5: environment.publishWithWeb5
   };
 
   for (const entity of entities) {
@@ -244,14 +264,14 @@ export async function createContext(
     //should be split cleanly into things that will always be passed through directly from config
     //and things like identifiers that need merging behaviour
     const entityContext =
-      existingEntity ??
-      (lockedEntity
-        ? { ...lockedEntity, subjects: [], didConfiguration: entityConfig?.didConfiguration, additionalOutDir: entityConfig?.additionalOutDir }
-        : await generateEntity(
+      existingEntity ?? await generateEntity(
             entityId,
             entityConfig,
-            provider.did
-          ));
+            lockedEntity,
+            provider.did,
+            provider.publisherDid,
+            environment.publishWithWeb5
+          );
 
     if (!existingEntity) agg.entities.set(entityId, entityContext);
     const entityName = entity.entity.name;
@@ -261,9 +281,13 @@ export async function createContext(
         case 'TrustEstablishmentDoc': {
           //todo: use lock
           const relativeId = toRelativeId(entityName, symbol.metadata);
-          agg.trustDocs.set(relativeId, {
-            id: uuidv4(),
-          });
+          const lockedTrustDoc = lock?.context.trustDocs.get(relativeId)
+          //need to bump versions
+          //ideally i'd do some sort of compatability check to figure out how or if to bump
+
+          const docContext = entityContext.publisherDid ? (lockedTrustDoc ? {id: lockedTrustDoc.id, did: lockedTrustDoc.publisherDid} : await provider.draftTrustDoc(entityContext.publisherDid)) : {id: uuidv4(), did: undefined}
+          //todo: only bump version if the trust doc has actually changed
+          agg.trustDocs.set(relativeId, {id: docContext.id, publisherDid: docContext.did, version: lockedTrustDoc?.version ? bumpVersion(lockedTrustDoc.version) : '1' });
           break;
         }
         case 'Topic': {
@@ -299,14 +323,14 @@ export async function createContext(
           //eagerly create one, dunno if this is a good idea
           const lockedEntity = lock?.context.entities.get(subjectEntityId);
           const entity =
-            existingEntity ??
-            (lockedEntity
-              ? { ...lockedEntity, subjects: [], didConfiguration: subjectEntityConfig?.didConfiguration, additionalOutDir: subjectEntityConfig?.additionalOutDir }
-              : await generateEntity(
+            existingEntity ?? await generateEntity(
                 subjectEntityId,
                 subjectEntityConfig,
-                provider.did
-              ));
+                lockedEntity,
+                provider.did,
+                provider.publisherDid,
+                environment.publishWithWeb5
+              );
           //eagerly load subjects, dunno if this is a good idea
           agg.entities.set(toEntityId(symbol.metadata), entity);
 
@@ -334,12 +358,15 @@ export async function createContext(
 async function generateEntity(
   entityId: string,
   config: EntityConfig | undefined,
-  provideDid: Provider['did']
+  lockedEntity: EntityContext | undefined,
+  provideDid: Provider['did'],
+  providePublisherDid: Provider['publisherDid'],
+  publishWithWeb5: boolean
 ): Promise<EntityContext> {
-  //if did is provided in environment then use that
-  const did = config?.did ?? (await provideDid(entityId, config?.didMethod));
+  //if did is provided in environment config then use that, if did is in lock then use that, otherwise generate a new one
+  const did = config?.did ?? (lockedEntity?.did ?? await provideDid(entityId, config?.didMethod));
 
-  return {
+  const context: EntityContext = {
     name: entityId,
     did,
     origin: config?.origin,
@@ -347,6 +374,13 @@ async function generateEntity(
     additionalOutDir: config?.additionalOutDir,
     subjects: [],
   };
+  //ew mutation
+  if(publishWithWeb5) {
+    //if publisher did is in lock then use that otherwise generate a new one
+    context.publisherDid = lockedEntity?.publisherDid ?? await providePublisherDid(entityId)
+  }
+
+  return context
 }
 
 function mapProofFormatType(proofFormat: ProofFormatTypesEnum) {
@@ -420,4 +454,15 @@ function toRelativeId(entityName: string, metadata: SymbolMetadata): string {
 
 function toRelativeIdFromName(entityName: string, symbolName: string): string {
   return `${entityName}/${symbolName}`;
+}
+
+//if we can't figure out how to bump the input then just pass it through unchanged
+function bumpVersion(version: string) {
+  const intVersion = parseInt(version)
+  if(!isNaN(intVersion)) {
+    return (intVersion + 1).toString()
+  }
+
+  console.log(`warn: couldn't recognise version '${version}'`)
+  return version
 }

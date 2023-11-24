@@ -18,5 +18,11 @@
     "lib": [
       "ES2022"
     ]
+  },
+  "ts-node": {
+    "esm": true,
+    "compilerOptions": {
+      "module": "NodeNext",
+    }
   }
 }

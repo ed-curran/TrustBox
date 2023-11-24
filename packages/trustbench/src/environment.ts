@@ -22,7 +22,8 @@ export type EntityConfig = {
 };
 
 export type EnvironmentFile = {
-  kmsSecretKey: string | undefined;
+  kmsSecretKey?: string;
+  publishWithWeb5?: boolean;
   entities: Record<string, EntityConfig>;
 };
 
@@ -36,13 +37,14 @@ function fileToEnvironment(
   name: string,
   environmentFile: EnvironmentFile
 ): Environment {
-  const kmsSecretKet = process.env.TRUSTBENCH_KMS_SECRET_KEY ?? environmentFile.kmsSecretKey
+  const kmsSecretKet = environmentFile.kmsSecretKey ?? process.env.TRUSTBENCH_KMS_SECRET_KEY
   if(!kmsSecretKet) {
     throw Error(`please provide a kms secret key using "mksSecretKey" in the environment.json or using the TRUSTBENCH_KMS_SECRET_KEY env variable`)
   }
   return {
     name: name,
     kmsSecretKey: kmsSecretKet,
+    publishWithWeb5: environmentFile.publishWithWeb5 ?? false,
     entities: new Map(Object.entries(environmentFile.entities)),
   };
 }
@@ -61,6 +63,7 @@ function fileToLock(lockFile: EnvironmentLockFile): EnvironmentLock {
       topics: new Map(Object.entries(contextFile.topics)),
       trustDocs: new Map(Object.entries(contextFile.trustDocs)),
       entities: new Map(Object.entries(contextFile.entities)),
+      publishWithWeb5: contextFile.publishWithWeb5
     },
   };
 }
@@ -74,6 +77,7 @@ function environmentLockToFile(lock: EnvironmentLock): EnvironmentLockFile {
       topics: Object.fromEntries(context.topics.entries()),
       trustDocs: Object.fromEntries(context.trustDocs.entries()),
       entities: Object.fromEntries(context.entities.entries()),
+      publishWithWeb5: context.publishWithWeb5
     },
   };
 }

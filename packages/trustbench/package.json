@@ -13,19 +13,26 @@
     "@veramo/credential-w3c": "^5.5.3",
     "@veramo/data-store": "^5.5.3",
     "@veramo/did-manager": "^5.5.3",
-    "@veramo/key-manager": "^5.5.3",
     "@veramo/did-provider-key": "^5.5.3",
     "@veramo/did-provider-web": "^5.5.3",
     "@veramo/did-resolver": "^5.5.3",
+    "@veramo/key-manager": "^5.5.3",
     "@veramo/kms-local": "^5.5.3",
+    "@web5/agent": "^0.2.3",
+    "@web5/api": "^0.8.2",
+    "@web5/common": "^0.2.1",
+    "@web5/dids": "^0.2.2",
+    "@web5/identity-agent": "^0.2.3",
+    "@web5/user-agent": "^0.2.3",
     "key-did-resolver": "^3.0.0",
     "sqlite3": "^5.1.6",
+    "typeorm": "0.3.17",
     "uuid": "^9.0.1",
-    "web-did-resolver": "^2.0.27",
-    "typeorm": "0.3.17"
+    "web-did-resolver": "^2.0.27"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
+    "@types/node": "^20.9.0",
     "@types/uuid": "^9.0.6",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "eslint": "8.46.0",
@@ -34,7 +41,6 @@
     "prettier": "^2.6.2",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2",
-    "@types/node": "^20.9.0"
+    "typescript": "^5.2.2"
   }
 }

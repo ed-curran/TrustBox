@@ -1,13 +1,16 @@
 import {EnvironmentFile, environmentPath, loadEnvironment, saveEnvironmentLock} from './environment'
 import {loadEntities} from './symbolLoader'
-import {veramoAgent} from './veramo/veramoAgent'
+import {createVeramoAgent} from './veramo/createVeramoAgent'
 import {getProvider} from './veramo/veramoProvider'
 import {bundle, createContext} from './bundler/bundler'
-import {bundleToWriteCommand, writeBundle} from './bundler/bundleWriter'
+import {bundleToWriteCommand, writeBundle} from './publisher/bundleWriter'
 import {FsReadDeps} from './fsDeps'
 import {nodeFsReadDeps, nodeFsWriteDeps, nodePathDeps} from './fsDepsNode'
 import * as fs from 'fs';
 import path from 'path';
+import {createFilesystemPublisher} from './publisher/createFilesystemPublisher'
+import {createWeb5Publisher} from './web5/createWeb5Publisher'
+import {createWeb5, createWeb5Agent} from './web5/createWeb5'
 
 
 
@@ -44,8 +47,10 @@ export async function build(environmentName: string, dir: string = 'model') {
     join: path.join,
   });
 
-  const agent = await veramoAgent(environment.environment.kmsSecretKey, environmentName);
-  const provider = getProvider(agent);
+  const veramoAgent = await createVeramoAgent(environment.environment.kmsSecretKey, environmentName);
+  const web5Agent = await createWeb5Agent(environment.environment.kmsSecretKey, environmentName)
+  const provider = getProvider(veramoAgent, web5Agent);
+
   const context = await createContext(
     loadedEntities,
     environment.environment,
@@ -65,7 +70,15 @@ export async function build(environmentName: string, dir: string = 'model') {
     bundle: result,
   };
 
+  const fsPublisher = await createFilesystemPublisher({ f: fsWriteDeps, path: pathDeps }, `dist/${environmentName}`)
+  await fsPublisher.publishBundle(result, environment.environmentLock)
+
+  if(environment.environment.publishWithWeb5) {
+    const web5Publisher = await createWeb5Publisher(web5Agent)
+    await web5Publisher.publishBundle(result, environment.environmentLock)
+  }
+
+
+
   await saveEnvironmentLock(fsWriteDeps, newLock, environmentName);
-  const command = bundleToWriteCommand(`dist/${environmentName}`, result, environment.environmentLock, pathDeps);
-  await writeBundle(command, { f: fsWriteDeps, path: pathDeps });
 }

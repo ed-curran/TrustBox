@@ -2,9 +2,11 @@
 *.environment-lock.json
 *.sqlite
 *.env
+web5data-*
 dist
 
 #use these in our CI pipeline
 !demo.environment.json
 !demo.environment-lock.json
 !demo.sqlite
+!web5data-demo

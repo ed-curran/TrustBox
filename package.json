@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "turbo run build",
+    "build": "turbo run build --filter=!trust-backbone",
     "dev": "turbo run dev",
     "init": "cd packages/trust-backbone && pnpm run init && pnpm run dev",
     "lint": "turbo run lint",

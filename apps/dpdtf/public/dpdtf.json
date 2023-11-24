@@ -1,10 +1,20 @@
 {
-  "id": "b5b25daf-f926-4a40-8525-10b730210aea",
+  "id": "0d0414e0-6eae-4c8b-a253-3fd51ea7f5b3",
   "author": "did:key:z6MkfmjEL5mEcsJ59gupPPCTic2ExxG6bamHs9Jn4B2u9sdk",
-  "version": "0.0.1",
-  "created": "",
-  "validFrom": "",
+  "version": "1",
+  "created": "2023-11-24T22:57:06.978Z",
+  "validFrom": "2023-11-24T22:57:06.978Z",
   "entries": {
+    "https://trust-sight-dpdtf.vercel.app/topics/dpdtf-participant.json": {
+      "did:key:z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM": {
+        "name": "yo",
+        "domain": "https://identity.foundation"
+      },
+      "did:key:z6MkrkJhzLH5JVR4e3STogD9MoMUkiaTNi6C5bVNFZtyn4WJ": {
+        "name": "property-prepper",
+        "domain": "https:property-pack-provider.com"
+      }
+    },
     "https://trust-sight-dpdtf.vercel.app/topics/dpdtf-issuer.json": {
       "did:key:z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM": {
         "credentials": [
@@ -15,16 +25,6 @@
         "credentials": [
           "PropertyPack"
         ]
-      }
-    },
-    "https://trust-sight-dpdtf.vercel.app/topics/dpdtf-participant.json": {
-      "did:key:z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM": {
-        "name": "yo",
-        "domain": "https://identity.foundation"
-      },
-      "did:key:z6MkrkJhzLH5JVR4e3STogD9MoMUkiaTNi6C5bVNFZtyn4WJ": {
-        "name": "property-prepper",
-        "domain": "https:property-pack-provider.com"
       }
     }
   }

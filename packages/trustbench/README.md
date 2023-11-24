@@ -113,17 +113,20 @@ After a successful build TrustBench will write an environment-lock file, that lo
 This is so that later, it can reuse the identifiers (like dids and resource uuids etc) that it has generated previously.
 
 Unfortunately this behavour is super janky right now, so if something isn't building probably its likely that deleting the environment-lock file will help. If you delete the environment-lock you MUST also delete the 
-`{environmentName}.sqlite` file. Otherwise, the build will likely fail (I should probably fix this)
+`{environmentName}.sqlite` file and the `web5data-{environmentName}` dir. Otherwise, the build will likely fail (I should probably fix this)
 
+(yes i need to keep all this stuff more organised, todo: have a `.{environmentName}` dir and put all the lock and persistence stuff in there)
 
-### The Key Management Database
+### Key Management Persistence
 
 With the current veramo setup, keys for generated DIDs are stored in an sqlite database managed by veramo
 and dumped in whatever directory you ran `build` from. The db file looks like `{environmentName}.sqlite`
 
+we also use web5. web5 will put its data in the `web5data-{environmentName}` directory (relative to where you ran `build`)
+(todo: shouldn't init web5 unless `publishWithWeb5` is used)
 ### Kms Secret Key
 A kms secret key must be set to encrypt the keys (as above) with. This can be included in the environment file directly which is fine for things like dev.
-Or it can set using the environment variable `TRUSTBENCH_KMS_SECRET_KEY`. The environment variable will take precedence if both are present.
+Or it can set using the environment variable `TRUSTBENCH_KMS_SECRET_KEY`. The environment file value will take precedence over the environment variable if both are present.
 
 ### Usage
 Currently, trust bench exports a single function:

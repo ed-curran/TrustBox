@@ -1,20 +1,14 @@
 {
-  "id": "78684ccd-092a-4fee-b3a5-148cef1a763f",
+  "id": "ec64be8a-d733-4af0-8396-b28ecfd3f356",
   "author": "did:key:z6MkkdZ93pyZohoK18h1BUtDESkbxnshjrQgSznTyeSdrNar",
-  "version": "0.0.1",
-  "created": "",
-  "validFrom": "",
+  "version": "1",
+  "created": "2023-11-24T22:57:06.980Z",
+  "validFrom": "2023-11-24T22:57:06.980Z",
   "entries": {
     "https://trust-sight-ddiatf.vercel.app/diaatf-scheme-author.json": {
       "did:key:z6MkfmjEL5mEcsJ59gupPPCTic2ExxG6bamHs9Jn4B2u9sdk": {
         "name": "dpdtf",
         "domain": "https://dpdtf.example"
-      }
-    },
-    "https://trust-sight-dpdtf.vercel.app/topics/dpdtf-participant.json": {
-      "did:key:z6MkfmjEL5mEcsJ59gupPPCTic2ExxG6bamHs9Jn4B2u9sdk": {
-        "name": "dpdtf-admin",
-        "domain": "https:dpdtf-admin.com"
       }
     }
   }

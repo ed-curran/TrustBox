@@ -1,6 +1,9 @@
-import {Bundle, BundledEntity, EnvironmentLock} from './bundler';
+import {Bundle, BundledEntity, EnvironmentLock} from '../bundler/bundler';
 import { FsWriteDeps, mkDirIfNotExists, PathDeps } from '../fsDeps';
 import path from 'path';
+
+//eventually we'll have the concept of a generic "Publisher", where this is a WebServer / Filesystem publisher
+//and can have others like DWNPublisher, Cheqd linked resource publisher etc
 
 //you could replace all this with some generic FileWriteCommand and DirWriteCommand thing
 
@@ -88,7 +91,7 @@ export async function writeBundle(
   }
 }
 
-async function writeEntity(entityDir: string, entityWriteCommand: EntityWriteCommand, deps: Deps, existingDirs = new Set<string>()) {
+export async function writeEntity(entityDir: string, entityWriteCommand: EntityWriteCommand, deps: Deps, existingDirs = new Set<string>()) {
   const writes: WriteCommand[] = entityWriteCommand.commands.map(command => ({
     dir: deps.path.join(entityDir, command.dir),
     path: deps.path.join(entityDir, command.path),
@@ -133,7 +136,7 @@ export function bundleToWriteCommand(
 
       return {
         entityDir,
-        commands: entityToCommands(entityDir, entity),
+        commands: entityToCommands(entityDir, entity, path),
         lockCommands: [],
         additionalOutDir: entity.additionalOutDir
       };
@@ -141,9 +144,10 @@ export function bundleToWriteCommand(
   };
 }
 
-function entityToCommands(
+export function entityToCommands(
   entityDir: string,
-  bundle: BundledEntity
+  bundle: BundledEntity,
+  path: PathDeps
 ): WriteCommand[] {
   return bundle.outputSymbols.map((symbol) => {
     const dir = path.join(...symbol.metadata.namespace);

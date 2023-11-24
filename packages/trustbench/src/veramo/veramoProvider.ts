@@ -1,7 +1,9 @@
-import { VeramoAgent } from './veramoAgent';
+import { VeramoAgent } from './createVeramoAgent';
 import { Provider } from '../bundler/provider';
+import {draftTrustDoc} from '../web5/createWeb5Publisher'
+import {createWeb5, getWeb5, Web5Agent} from '../web5/createWeb5'
 
-export function getProvider(agent: VeramoAgent): Provider {
+export function getProvider(agent: VeramoAgent, web5Agent: Web5Agent): Provider {
   return {
     async did(alias: string, method: string) {
       const identifier = await agent.didManagerCreate({
@@ -9,6 +11,10 @@ export function getProvider(agent: VeramoAgent): Provider {
         provider: method,
       });
       return identifier.did;
+    },
+    async publisherDid(alias: string) {
+      const web5Connection = await createWeb5(web5Agent, alias)
+      return web5Connection.did;
     },
     async issue(did: string, credential, proofFormat) {
       //we need to set the kid in the jwt ourselves. so we first need to find a kid for this did
@@ -55,5 +61,17 @@ export function getProvider(agent: VeramoAgent): Provider {
         proofFormat: proofFormat
       })
     },
+    //i'm not sure this should be in here
+    //this needs to be passed the publisherDid
+    async draftTrustDoc(did) {
+      const web5Connection = await getWeb5(web5Agent, did)
+      // const stuff = await agent.didManagerGet({did})
+      // console.log(stuff)
+      // for(const key of stuff.keys) {
+      //   const found = await agent.keyManagerGet()
+      //   console.log(found)
+      // }
+      return draftTrustDoc(web5Connection)
+    }
   };
 }
