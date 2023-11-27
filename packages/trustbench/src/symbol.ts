@@ -1,4 +1,4 @@
-import { JsonSchema } from './bundler/trustEstablishmentDoc';
+import { JsonSchema } from 'trustlib';
 
 export interface Entity {}
 

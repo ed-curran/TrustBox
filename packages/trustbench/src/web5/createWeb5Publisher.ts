@@ -1,151 +1,106 @@
-import {Publisher} from '../publisher/publisher'
-import {createWeb5, getWeb5, Web5Agent} from './createWeb5'
+import { Publisher } from '../publisher/publisher';
+import { getWeb5, Web5Agent } from './createWeb5';
 
 import type {
-  Web5
+  Web5,
   // @ts-expect-error this will error because we shouldn't be importing an esm only package
   // but since we just want the types, this actually works.
 } from '@web5/api';
-import {TrustEstablishmentDoc} from '../bundler/trustEstablishmentDoc'
-import * as console from 'console'
+import { TrustEstablishmentDoc } from 'trustlib';
+import * as console from 'console';
 
-type Web5Connection =  {web5: Web5, did: string}
-// async function publishTrustDoc(web5: Web5, did: string, trustDoc: TrustEstablishmentDoc) {
-//   //should do updates too aka this should be a PUT
-//   //which means we need do a get first and if we find a matching trust doc by id then do an update. otherwise create.
-//   const { record: existingRecord } = await web5.dwn.records.read({
-//     message: {
-//       filter: {
-//         recordId: trustDoc.id
-//       }
-//     }
-//   });
-//   if(existingRecord) {
-//     console.log(`updating existing trust doc with id ${existingRecord.id} and did=${did}`)
-//
-//     await existingRecord.update({
-//       data: trustDoc,
-//     })
-//
-//
-//     return trustDoc.id
-//   }
-//
-//   console.log(`publishing fresh trust doc with id=${trustDoc.id} and did=${did}`)
-//
-//   //I find it weird having to get a specific reference to a record to do an update.
-//   const { record, status } = await web5.dwn.records.create({
-//     data: JSON.stringify(trustDoc),
-//     message: {
-//       recordId: trustDoc.id,
-//       dataFormat: 'application/json',
-//       //public is fine for our purposes
-//       published: true
-//     },
-//   });
-//   console.log(status)
-//   if(!record) {
-//     throw Error("oops couldn't create dwn record")
-//   }
-//
-//   console.log(record.id)
-//   await record.send(did);
-//   return record.id
-// }
+type Web5Connection = { web5: Web5; did: string };
 
-async function publishDraftTrustDoc({web5, did}: Web5Connection, trustDoc: TrustEstablishmentDoc) {
+async function publishDraftTrustDoc(
+  { web5, did }: Web5Connection,
+  trustDoc: TrustEstablishmentDoc,
+) {
   //should do updates too aka this should be a PUT
   //which means we need do a get first and if we find a matching trust doc by id then do an update. otherwise create.
   const { record: existingRecord } = await web5.dwn.records.read({
     message: {
       filter: {
-        recordId: trustDoc.id
-      }
-    }
+        recordId: trustDoc.id,
+      },
+    },
   });
 
-  if(!existingRecord) {
-    throw Error("oops tried to publish trust doc that doesn't have a draft")
+  if (!existingRecord) {
+    throw Error("oops tried to publish trust doc that doesn't have a draft");
   }
 
-  console.log(`publishing draft trust doc with id ${existingRecord.id} and did=${did}`)
-
-  const {status} = await existingRecord.update({
+  const { status } = await existingRecord.update({
     data: JSON.stringify(trustDoc),
-    published: true
-  })
+    published: true,
+  });
 
-  console.log(status)
-  await existingRecord.send(did)
-  return trustDoc.id
+  await existingRecord.send(did);
+
+  console.log(trustDoc);
+  console.log(
+    `published draft trust doc with id ${existingRecord.id} and did=${did}`,
+  );
+  return trustDoc.id;
 }
 
-export async function draftTrustDoc({web5, did}: Web5Connection) {
+export async function draftTrustDoc({ web5, did }: Web5Connection) {
   const { record } = await web5.dwn.records.create({
     data: '',
     message: {
       dataFormat: 'application/json',
-      //public is fine for our purposes
-      published: false
+      //technically the draft doesn't adhere to the schema... not sure what to do about that
+      //also should use a bet location for the schema
+      schema:
+        'https://github.com/decentralized-identity/trust-establishment/blob/main/versions/v1/schemas/schema.json',
+      //the draft isn't published
+      published: false,
     },
   });
 
-  if(!record) {
-    throw Error("oops couldn't create dwn record")
+  if (!record) {
+    throw Error("oops couldn't create dwn record");
   }
 
   await record.send(did);
+  console.log(`created draft trust doc with id ${record.id} and did=${did}`);
   return {
     id: record.id,
-    did: did
-  }
+    did: did,
+  };
 }
 export const createWeb5Publisher = (web5Agent: Web5Agent): Publisher => {
   return {
     async publishBundle(bundle, environmentLock): Promise<void> {
-      //web5 doesn't like us having multiple instances open at once
-      for(const entity of bundle.entities) {
-        await this.publishEntity(entity, environmentLock)
-      }
-      // await Promise.all(bundle.entities.map(entity => this.publishEntity(entity, environmentLock)))
-      return
+      await Promise.all(
+        bundle.entities.map((entity) =>
+          this.publishEntity(entity, environmentLock),
+        ),
+      );
     },
 
     async publishEntity(entity): Promise<void> {
       //create connected web5 instance for this entity
       //should reuse did managed by veramo
-      console.log("creating")
-      console.log("created")
-
-      //web5 doesn't like overlapping promises
-      for(const outputSymbol of entity.outputSymbols) {
-        switch (outputSymbol.type) {
-          case 'TrustEstablishmentDoc': {
-            const doc = outputSymbol.value as TrustEstablishmentDoc
-            if(doc.publisherDid) {
-              //want to publish this with dwn
-              //need to get the web5 connection for this entity
-              //ugly getting the publisher id from the doc itself, should the publisher have access to context?
-              const web5Connection = await getWeb5(web5Agent, doc.publisherDid)
+      //todo error handling and reporting
+      const publishPromises = entity.outputSymbols.flatMap(
+        async (outputSymbol) => {
+          switch (outputSymbol.type) {
+            case 'TrustEstablishmentDoc': {
+              const doc = outputSymbol.value as TrustEstablishmentDoc;
+              const web5Connection = await getWeb5(web5Agent, doc.author);
               //gross casting
-              await publishDraftTrustDoc(web5Connection, outputSymbol.value as TrustEstablishmentDoc)
+              return [
+                await publishDraftTrustDoc(
+                  web5Connection,
+                  outputSymbol.value as TrustEstablishmentDoc,
+                ),
+              ];
             }
           }
-        }
-      }
-      //todo error handling and reporting
-      // const publishPromises = entity.outputSymbols.flatMap(async (outputSymbol) => {
-      //   switch (outputSymbol.type) {
-      //     case 'TrustEstablishmentDoc': {
-      //       //gross casting
-      //       return [publishTrustDoc(web5, did, outputSymbol.value as TrustEstablishmentDoc)]
-      //     }
-      //   }
-      //   return []
-      // })
-      // await Promise.all(publishPromises)
-      return
-    }
-  }
-}
-
+          return [];
+        },
+      );
+      await Promise.all(publishPromises);
+    },
+  };
+};

@@ -1,9 +1,9 @@
 {
   "id": "b06ad981-a451-4c84-b163-8b54b5a80204",
   "author": "did:key:z6MkkdZ93pyZohoK18h1BUtDESkbxnshjrQgSznTyeSdrNar",
-  "version": "4",
-  "created": "2023-11-24T23:50:35.468Z",
-  "validFrom": "2023-11-24T23:50:35.468Z",
+  "version": "5",
+  "created": "2023-11-27T22:06:16.714Z",
+  "validFrom": "2023-11-27T22:06:16.714Z",
   "entries": {
     "https://trust-sight-ddiatf.vercel.app/diaatf-scheme-author.json": {
       "did:key:z6MkfmjEL5mEcsJ59gupPPCTic2ExxG6bamHs9Jn4B2u9sdk": {

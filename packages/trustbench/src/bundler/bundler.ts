@@ -1,9 +1,9 @@
-import {Entries, TrustEstablishmentDoc} from './trustEstablishmentDoc';
-import {LoadedEntity} from '../symbolLoader';
-import {Subject, SymbolMetadata} from '../symbol';
-import {DidConfigurationConfig, EntityConfig} from '../environment';
-import {v4 as uuidv4} from 'uuid';
-import {Provider} from './provider';
+import { Entries, TrustEstablishmentDoc } from 'trustlib';
+import { LoadedEntity } from '../symbolLoader';
+import { Subject, SymbolMetadata } from '../symbol';
+import { DidConfigurationConfig, EntityConfig } from '../environment';
+import { v4 as uuidv4 } from 'uuid';
+import { issueAsFormat, Provider } from './provider';
 import {
   IIssueCallbackArgs,
   IIssueDomainLinkageCredentialArgs,
@@ -17,8 +17,8 @@ type EntityContext = {
   did: string;
   origin: string | undefined;
   //we're duplicating environment config into here and it seems dumb, why are we not just passing environment through
-  didConfiguration: DidConfigurationConfig | boolean | undefined
-  additionalOutDir: string | undefined
+  didConfiguration: DidConfigurationConfig | boolean | undefined;
+  additionalOutDir: string | undefined;
   //this feels wrong tbh
   subjects: {
     id: string;
@@ -28,10 +28,14 @@ type EntityContext = {
   //hacky temporary field to handle web5 instance using a different did
   //todo: either get veramo and web5 to use the same did
   //or add proper multi did support
-  publisherDid?: string
+  publisherDid?: string;
 };
 
-export type TrustDocContext = { id: string, publisherDid: string | undefined, version: string }
+export type TrustDocContext = {
+  id: string;
+  publisherDid: string | undefined;
+  version: string;
+};
 export type Context = {
   environmentName: string;
   entities: Map<string, EntityContext>;
@@ -42,12 +46,12 @@ export type Context = {
     }
   >;
   trustDocs: Map<string, TrustDocContext>;
-  publishWithWeb5: boolean
+  publishWithWeb5: boolean;
 };
 
 export type Environment = {
   name: string;
-  publishWithWeb5: boolean
+  publishWithWeb5: boolean;
   kmsSecretKey: string;
   entities: Map<string, EntityConfig>;
 };
@@ -64,7 +68,7 @@ export type BundledEntity = {
   name: string;
   seen: string[];
   outputSymbols: OutputSymbol[];
-  additionalOutDir: string | undefined
+  additionalOutDir: string | undefined;
 };
 
 export type EnvironmentLock = {
@@ -75,7 +79,7 @@ export async function bundleEntity(
   entity: LoadedEntity,
   context: Context,
   lock: EnvironmentLock | undefined,
-  provider: Provider
+  provider: Provider,
 ): Promise<BundledEntity> {
   const entityId = toEntityId(entity.entity);
   const entityContext = context.entities.get(entityId);
@@ -83,12 +87,11 @@ export async function bundleEntity(
   if (!entityContext) throw Error('oops should have entity in context');
   const entityName = entity.entity.name;
 
-
   const agg: BundledEntity = {
     name: entityName,
     seen: [],
     outputSymbols: [],
-    additionalOutDir: entityContext.additionalOutDir
+    additionalOutDir: entityContext.additionalOutDir,
   };
 
   //create wellknown did configuration if did or origin has changed
@@ -101,7 +104,7 @@ export async function bundleEntity(
       entityContext.did,
       entityContext.origin,
       entityContext.didConfiguration,
-      provider
+      provider,
     );
     agg.outputSymbols.push({
       type: 'WellknownDidConfiguration',
@@ -118,7 +121,7 @@ export async function bundleEntity(
     switch (symbol.type) {
       case 'TrustEstablishmentDoc': {
         const trustDocContext = context.trustDocs.get(
-          toRelativeId(entityName, symbol.metadata)
+          toRelativeId(entityName, symbol.metadata),
         );
         //ew
         if (!trustDocContext)
@@ -129,12 +132,12 @@ export async function bundleEntity(
             const topicContext =
               context.topics.get(relativeTopicId) ??
               context.topics.get(
-                toRelativeIdFromName(entityName, relativeTopicId)
+                toRelativeIdFromName(entityName, relativeTopicId),
               );
             return topicContext
               ? ([[relativeTopicId, topicContext]] as const)
               : [];
-          }
+          },
         );
         const validTopicMap = new Map<string, { id: string }>(resolvedTopics);
 
@@ -149,20 +152,20 @@ export async function bundleEntity(
                 if (topic) {
                   topic[subject.id] = assertionSet;
                 }
-              }
+              },
             );
             return agg;
           },
           Object.fromEntries(
             resolvedTopics.map(
-              ([, topicContext]) => [topicContext.id, {}] as const
-            )
-          )
+              ([, topicContext]) => [topicContext.id, {}] as const,
+            ),
+          ),
         );
-        const now = new Date()
-        const nowIso = now.toISOString()
+        const now = new Date();
+        const nowIso = now.toISOString();
         //this version has already been bumped
-        const version = trustDocContext.version
+        const version = trustDocContext.version;
         const doc: TrustEstablishmentDoc = {
           id: trustDocContext.id,
           author: entityContext.did,
@@ -171,9 +174,7 @@ export async function bundleEntity(
           validFrom: nowIso,
           entries: entries,
         };
-        if(trustDocContext.publisherDid) {
-          doc.publisherDid = trustDocContext.publisherDid
-        }
+
         agg.outputSymbols.push({
           type: symbol.type,
           value: doc,
@@ -187,7 +188,7 @@ export async function bundleEntity(
         const topicContext =
           context.topics.get(symbol.metadata.name) ??
           context.topics.get(
-            toRelativeIdFromName(entityName, symbol.metadata.name)
+            toRelativeIdFromName(entityName, symbol.metadata.name),
           );
         if (!topicContext) throw Error('oops should have topic in context');
         agg.outputSymbols.push({
@@ -218,14 +219,14 @@ export async function bundle(
   entities: LoadedEntity[],
   context: Context,
   lock: EnvironmentLock | undefined,
-  provider: Provider
+  provider: Provider,
 ): Promise<Bundle> {
   return {
     environmentName: context.environmentName,
     //i think these are independent so shouldn't have any race conditiony problems
     //...famous last words
     entities: await Promise.all(
-      entities.map((entity) => bundleEntity(entity, context, lock, provider))
+      entities.map((entity) => bundleEntity(entity, context, lock, provider)),
     ),
   };
 }
@@ -238,7 +239,7 @@ export async function createContext(
   entities: LoadedEntity[],
   environment: Environment,
   lock: EnvironmentLock | undefined,
-  provider: Provider
+  provider: Provider,
 ): Promise<Context> {
   //using loops cus reduce is awkward with async stuff
   const agg: Context = {
@@ -246,7 +247,7 @@ export async function createContext(
     entities: new Map(),
     topics: new Map(),
     trustDocs: new Map(),
-    publishWithWeb5: environment.publishWithWeb5
+    publishWithWeb5: environment.publishWithWeb5,
   };
 
   for (const entity of entities) {
@@ -258,20 +259,20 @@ export async function createContext(
 
     const lockedEntity = lock?.context.entities.get(entityId);
     const existingEntity = agg.entities.get(entityId);
-    const entityConfig = environment.entities.get(entityId)
+    const entityConfig = environment.entities.get(entityId);
     //the lock behaviour is completely fucked and makes no sense
     //wipe the subjects, because there's nothing in there that we need to keep the sam
     //should be split cleanly into things that will always be passed through directly from config
     //and things like identifiers that need merging behaviour
     const entityContext =
-      existingEntity ?? await generateEntity(
-            entityId,
-            entityConfig,
-            lockedEntity,
-            provider.did,
-            provider.publisherDid,
-            environment.publishWithWeb5
-          );
+      existingEntity ??
+      (await generateEntity(
+        entityId,
+        entityConfig,
+        lockedEntity,
+        provider.did,
+        environment.publishWithWeb5,
+      ));
 
     if (!existingEntity) agg.entities.set(entityId, entityContext);
     const entityName = entity.entity.name;
@@ -281,13 +282,23 @@ export async function createContext(
         case 'TrustEstablishmentDoc': {
           //todo: use lock
           const relativeId = toRelativeId(entityName, symbol.metadata);
-          const lockedTrustDoc = lock?.context.trustDocs.get(relativeId)
+          const lockedTrustDoc = lock?.context.trustDocs.get(relativeId);
           //need to bump versions
           //ideally i'd do some sort of compatability check to figure out how or if to bump
 
-          const docContext = lockedTrustDoc ? {id: lockedTrustDoc.id, did: lockedTrustDoc.publisherDid} : (entityContext.publisherDid ? await provider.draftTrustDoc(entityContext.publisherDid) : {id: uuidv4(), did: undefined})
+          const docContext = lockedTrustDoc
+            ? { id: lockedTrustDoc.id, did: lockedTrustDoc.publisherDid }
+            : provider.draftTrustDoc
+            ? await provider.draftTrustDoc(entityContext.did)
+            : { id: uuidv4(), did: undefined };
           //todo: only bump version if the trust doc has actually changed
-          agg.trustDocs.set(relativeId, {id: docContext.id, publisherDid: docContext.did, version: lockedTrustDoc?.version ? bumpVersion(lockedTrustDoc.version) : '1' });
+          agg.trustDocs.set(relativeId, {
+            id: docContext.id,
+            publisherDid: docContext.did,
+            version: lockedTrustDoc?.version
+              ? bumpVersion(lockedTrustDoc.version)
+              : '1',
+          });
           break;
         }
         case 'Topic': {
@@ -318,19 +329,19 @@ export async function createContext(
             break;
           }
 
-          const subjectEntityConfig = environment.entities.get(subjectEntityId)
+          const subjectEntityConfig = environment.entities.get(subjectEntityId);
           //this subject doesn't have an entity created yet
           //eagerly create one, dunno if this is a good idea
           const lockedEntity = lock?.context.entities.get(subjectEntityId);
           const entity =
-            existingEntity ?? await generateEntity(
-                subjectEntityId,
-                subjectEntityConfig,
-                lockedEntity,
-                provider.did,
-                provider.publisherDid,
-                environment.publishWithWeb5
-              );
+            existingEntity ??
+            (await generateEntity(
+              subjectEntityId,
+              subjectEntityConfig,
+              lockedEntity,
+              provider.did,
+              environment.publishWithWeb5,
+            ));
           //eagerly load subjects, dunno if this is a good idea
           agg.entities.set(toEntityId(symbol.metadata), entity);
 
@@ -360,11 +371,13 @@ async function generateEntity(
   config: EntityConfig | undefined,
   lockedEntity: EntityContext | undefined,
   provideDid: Provider['did'],
-  providePublisherDid: Provider['publisherDid'],
-  publishWithWeb5: boolean
+  publishWithWeb5: boolean,
 ): Promise<EntityContext> {
   //if did is provided in environment config then use that, if did is in lock then use that, otherwise generate a new one
-  const did = config?.did ?? (lockedEntity?.did ?? await provideDid(entityId, config?.didMethod));
+  const did =
+    config?.did ??
+    lockedEntity?.did ??
+    (await provideDid(entityId, config?.origin, config?.didMethod));
 
   const context: EntityContext = {
     name: entityId,
@@ -375,42 +388,53 @@ async function generateEntity(
     subjects: [],
   };
   //ew mutation
-  if(publishWithWeb5) {
+  if (publishWithWeb5) {
     //if publisher did is in lock then use that otherwise generate a new one
-    context.publisherDid = lockedEntity?.publisherDid ?? await providePublisherDid(entityId)
+    context.publisherDid = did;
   }
 
-  return context
+  return context;
 }
 
 function mapProofFormatType(proofFormat: ProofFormatTypesEnum) {
   switch (proofFormat) {
-    case ProofFormatTypesEnum.JSON_LD: return 'lds'
-    case ProofFormatTypesEnum.JSON_WEB_TOKEN: return 'jwt'
+    case ProofFormatTypesEnum.JSON_LD:
+      return 'lds';
+    case ProofFormatTypesEnum.JSON_WEB_TOKEN:
+      return 'jwt';
   }
 }
+
 async function generateDidConfiguration(
   did: string,
   origin: string,
   config: DidConfigurationConfig | true,
-  provider: Provider
+  provider: Provider,
 ) {
   //todo don't recreate this everytime
   const issuer: WellKnownDidIssuer = new WellKnownDidIssuer({
     issueCallback: async (args: IIssueCallbackArgs) => {
+      const format = args.proofFormat
+        ? mapProofFormatType(args.proofFormat)
+        : 'jwt';
+      const issue = issueAsFormat(format, provider.issueFormats);
+      if (!issue) throw Error("couldn't issue as format: " + format);
+
       //yes i'm cheating
-      const result = (await provider.issue(
+      const result = (await issue(
         did,
         args.credential,
-        args.proofFormat ? mapProofFormatType(args.proofFormat) : 'jwt'
       )) as ISignedDomainLinkageCredential;
       return result;
     },
   });
-  const defaultedConfig: DidConfigurationConfig = config === true ? {
-    jsonLd: true,
-    jwt: true
-  } : config
+  const defaultedConfig: DidConfigurationConfig =
+    config === true
+      ? {
+          jsonLd: true,
+          jwt: true,
+        }
+      : config;
 
   const issuance = {
     did: did,
@@ -419,25 +443,25 @@ async function generateDidConfiguration(
     expirationDate: new Date(
       new Date().getFullYear() + 10,
       new Date().getMonth(),
-      new Date().getDay()
+      new Date().getDay(),
     ).toISOString(),
-  }
-  const issuances: IIssueDomainLinkageCredentialArgs[] = []
-  if(defaultedConfig.jsonLd) {
+  };
+  const issuances: IIssueDomainLinkageCredentialArgs[] = [];
+  if (defaultedConfig.jsonLd && provider.issueFormats.jsonld) {
     issuances.push({
       ...issuance,
       options: { proofFormat: ProofFormatTypesEnum.JSON_LD },
-    })
+    });
   }
-  if(defaultedConfig.jwt) {
+  if (defaultedConfig.jwt && provider.issueFormats.jwt) {
     issuances.push({
       ...issuance,
       options: { proofFormat: ProofFormatTypesEnum.JSON_WEB_TOKEN },
-    })
+    });
   }
 
-  return issuer.issueDidConfigurationResource({issuances}).catch((error) => {
-    throw error
+  return issuer.issueDidConfigurationResource({ issuances }).catch((error) => {
+    throw error;
   });
 }
 function subjectToEntityId(metadata: SymbolMetadata): string {
@@ -458,11 +482,11 @@ function toRelativeIdFromName(entityName: string, symbolName: string): string {
 
 //if we can't figure out how to bump the input then just pass it through unchanged
 function bumpVersion(version: string) {
-  const intVersion = parseInt(version)
-  if(!isNaN(intVersion)) {
-    return (intVersion + 1).toString()
+  const intVersion = parseInt(version);
+  if (!isNaN(intVersion)) {
+    return (intVersion + 1).toString();
   }
 
-  console.log(`warn: couldn't recognise version '${version}'`)
-  return version
+  console.log(`warn: couldn't recognise version '${version}'`);
+  return version;
 }

@@ -1,9 +1,9 @@
 {
   "id": "39d4f67c-d41d-44a9-bad5-a1600e084f03",
   "author": "did:key:z6MkfmjEL5mEcsJ59gupPPCTic2ExxG6bamHs9Jn4B2u9sdk",
-  "version": "4",
-  "created": "2023-11-24T23:50:35.469Z",
-  "validFrom": "2023-11-24T23:50:35.469Z",
+  "version": "5",
+  "created": "2023-11-27T22:06:16.726Z",
+  "validFrom": "2023-11-27T22:06:16.726Z",
   "entries": {
     "https://trust-sight-dpdtf.vercel.app/topics/dpdtf-participant.json": {
       "did:key:z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM": {

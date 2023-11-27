@@ -4,14 +4,9 @@ import {
   SymbolTag,
   Named,
   NamedSymbol,
-  Entity,
   Topic,
-  EntitySymbol,
-  TopicSymbol,
   Subject,
-  SubjectSymbol,
   TrustEstablishmentDoc,
-  TrustEstablishmentDocSymbol,
   Optional,
 } from './symbol';
 import { FsEntry, FsReadDeps, PathDeps } from './fsDeps';

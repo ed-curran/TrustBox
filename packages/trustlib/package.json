@@ -1,0 +1,12 @@
+{
+  "name": "trustlib",
+  "description": "trust lib",
+  "author": "Edward Curran",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {},
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}

@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "build": "turbo run build --filter=!trust-backbone",
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --concurrency 12",
     "init": "cd packages/trust-backbone && pnpm run init && pnpm run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
@@ -13,6 +13,8 @@
     "@typescript-eslint/parser": "^6.10.0",
     "eslint": "^8.48.0",
     "prettier": "^3.0.3",
+    "prettier-plugin-tailwindcss": "^0.3.0",
+    "eslint-config-prettier": "8.1.0",
     "ts-node": "^10.9.1",
     "tsconfig": "workspace:*",
     "turbo": "^1.10.12"
