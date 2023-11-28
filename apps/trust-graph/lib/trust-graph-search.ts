@@ -56,7 +56,7 @@ export async function search(
   const origin: string | undefined = linkedDomains[0]
   //we may have already seen this entity, in which case this will update it with an origin
   putEntity(graph, {did: nodeFilter.value, origin})
-  listeners.onUpdateNodes(graph.graph.nodes)
+  listeners.onUpdateNodes(graph.graph.nodes.slice())
 
   //todo validate domains
   //need to do an explicit add
@@ -227,12 +227,12 @@ function addAssertionTriple({graph, seen}: IndexedGraph, triple: Triple) {
 
 //an entity is represented by a node in the graph
 //create entity or do nothing if its already been seen
-function addEntity({seen, graph}: IndexedGraph, entity: {did: string, origin?: string}) {
-  const host = entity.origin ? new URL(entity.origin).host : undefined
+function addEntity({seen, graph}: IndexedGraph, entity: {did: string}) {
+  // const host = entity.origin ? new URL(entity.origin).host : undefined
   if(seen.nodes.has(entity.did)) return false
   graph.nodes.push({
     id: entity.did,
-    label: host,
+    label: undefined,
     size: 40
   });
   seen.nodes.set(entity.did, graph.nodes.length - 1);
@@ -241,7 +241,7 @@ function addEntity({seen, graph}: IndexedGraph, entity: {did: string, origin?: s
 
 //create or update an entity
 function putEntity({graph, seen}: IndexedGraph, entity: {did: string, origin?: string}) {
-  const host = entity.origin ? new URL(entity.origin).host : undefined
+  const host = entity.origin ? (new URL(entity.origin)).host : undefined
   const existingIndex = seen.nodes.get(entity.did)
   if(!existingIndex) {
     graph.nodes.push({
