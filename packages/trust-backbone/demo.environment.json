@@ -3,19 +3,19 @@
   "entities": {
     "ddsit": {
       "didType": "did:key",
-      "origin": "https://trust-sight-ddiatf.vercel.app",
+      "origin": "https://trust-uk.vercel.app",
       "didConfiguration": true,
       "additionalOutDir": "../../apps/ddiatf/public"
     },
     "dpdtf-admin": {
       "didType": "did:key",
-      "origin": "https://trust-sight-dpdtf.vercel.app",
+      "origin": "https://homebuying-uk.vercel.app",
       "didConfiguration": true,
       "additionalOutDir": "../../apps/dpdtf/public"
     },
     "property-prepper": {
       "didType": "did:key",
-      "origin": "https://trust-sight-property-prepper.vercel.app",
+      "origin": "https://property-prepper.vercel.app",
       "didConfiguration": true,
       "additionalOutDir": "../../apps/property-prepper/public"
     },

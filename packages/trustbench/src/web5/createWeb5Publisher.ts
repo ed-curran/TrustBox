@@ -36,9 +36,8 @@ async function publishDraftTrustDoc(
 
   await existingRecord.send(did);
 
-  console.log(trustDoc);
   console.log(
-    `published draft trust doc with id ${existingRecord.id} and did=${did}`,
+    `published trust doc with id ${existingRecord.id} and did=${did}`,
   );
   return trustDoc.id;
 }
@@ -62,7 +61,7 @@ export async function draftTrustDoc({ web5, did }: Web5Connection) {
   }
 
   await record.send(did);
-  console.log(`created draft trust doc with id ${record.id} and did=${did}`);
+  console.log(`created draft trust doc with id ${record.id}`);
   return {
     id: record.id,
     did: did,

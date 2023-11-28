@@ -5,7 +5,7 @@ import SeoHead from "../components/seo-head";
 export default function Page(): JSX.Element {
   return (
     <>
-      <SeoHead title="DPDTF Landing Page" />
+      <SeoHead title="HomebuyingUK" />
       <Layout>
         <Hero />
       </Layout>

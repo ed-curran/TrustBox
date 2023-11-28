@@ -1,6 +1,6 @@
 # Property Prepper
 
-This is a simple demonstration site playing the role of a participant and credential issuer within the [demo property data trust framework](../web/README.md).
+This is a simple demonstration site playing the role of a participant and credential issuer within [HomebuyingUK](../web/README.md).
 
 Property prepper helps you obtain all the property data needed to ensure your property sale goes off smoothly.
 

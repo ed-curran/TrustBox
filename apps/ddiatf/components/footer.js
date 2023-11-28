@@ -11,25 +11,36 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <div>
               {" "}
-              <Link href="/" className="flex items-center space-x-2 text-2xl font-medium text-indigo-500 dark:text-gray-100">
-                    <Image
-                      src="/img/logo.png"
-                      alt="N"
-                      width="32"
-                      height="32"
-                      className="w-8"
-                    />
-                  <span>DDIATF</span>
+              <Link
+                href="/"
+                className="flex items-center space-x-2 text-2xl font-medium text-indigo-500 dark:text-gray-100"
+              >
+                <Image
+                  src="/img/logo.png"
+                  alt="N"
+                  width="32"
+                  height="32"
+                  className="w-8"
+                />
+                <span>TrustUK</span>
               </Link>
             </div>
 
             <div className="max-w-md mt-4 text-gray-500 dark:text-gray-400">
-              The <strong className="font-medium">Demo Digital Identity and Attributes Trust Framework</strong> exists to demonstrate
-              the implementation of a trust framework using open standards.  Find out on the <a className={'underline text-blue-600 hover:text-blue-800 visited:text-purple-600'} href={'https://github.com/ed-curran/trustsight-demo'}>github repo</a>
+              <strong className="font-medium">TrustUK</strong> exists to
+              demonstrate the implementation of a trust framework using open
+              standards. Find out on the{" "}
+              <a
+                className={
+                  "underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                }
+                href={"https://github.com/ed-curran/trustsight-demo"}
+              >
+                github repo
+              </a>
             </div>
           </div>
         </div>
-
       </Container>
     </div>
   );

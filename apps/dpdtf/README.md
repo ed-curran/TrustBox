@@ -1,6 +1,6 @@
-# Demo Property Data Trust Framework (DPDTF)
+# HomebuyingUk (FKA. DPDTF)
 
-This is a simple demonstration site playing the role of a trust framework author, and a scheme within the [DDIATF](../docs/README.md). 
+This is a simple demonstration site playing the role of a trust framework author, and a scheme within  [TrustUk](../docs/README.md). 
 Specifically, this trust framework is modeled after the [Property Data Trust Framework](https://propdata.org.uk/) (PDTF)
 created by the [Home Buying and Selling Group](https://homebuyingandsellinggroup.co.uk/), and now managed by the [Open Property Data Association ](https://openpropdata.org.uk/).
 The PDTF seeks to enable people and organisation within the UK to exchange trustworthy property data more easily. 
@@ -9,7 +9,7 @@ Its significant contribution currently is the publication of [data schemas](http
 This demonstration aims to show how the PDTF might define which organisations
 are participating in the trust framework, including what their roles are, using a [trust establishment document](https://identity.foundation/trust-establishment/). 
 And crucially, how it can communicate that effectively to end users (generally buyers and sellers of properties).
-Additionally, it integrates with the [DDIATF](../docs/README.md) to demonstrate how the PDTF could be recognised as a scheme, 
+Additionally, it integrates with [TrustUk](../docs/README.md) to demonstrate how the PDTF could be recognised as a scheme, 
 therefore providing it a measure of trustworthiness in the eyes of users. 
 This shows how trust can be "chained", or form a web of relationships.
 

@@ -1,7 +1,6 @@
 "use-client";
 import type {WellKnownDidVerifier} from '@sphereon/wellknown-dids-client'
-import {SvgProps, GraphCanvasRef, GraphNode, InternalGraphNode, CollapseProps} from 'reagraph';
-import type * as R from 'reagraph'
+import type {SvgProps, GraphCanvasRef, GraphNode, InternalGraphNode, CollapseProps} from 'reagraph';
 import React, { useEffect, useRef, useState } from "react";
 import { Web5 } from "@web5/api";
 import type { TrustEstablishmentDoc } from "trustlib";
@@ -126,6 +125,7 @@ export function TrustGraphViewer({ filter }: TrustGraphViewerProps) {
   //   edges
   // });
 
+  const activeNodeData = active?.node.data as {did: string, origin: string | undefined} | undefined
   return (
     <div className="w-full h-100% flex-1 flex">
       {searching ? (
@@ -137,7 +137,7 @@ export function TrustGraphViewer({ filter }: TrustGraphViewerProps) {
       {(!searching && (!docs || docs.length === 0)) ?  <p>no trust docs found</p> : null}
 
       <div className='flex-1 relative'>
-        <div className={'space-y-2'} style={{
+        <div className="space-y-2" style={{
           zIndex: 9,
           position: 'absolute',
           top: 15,
@@ -147,20 +147,18 @@ export function TrustGraphViewer({ filter }: TrustGraphViewerProps) {
           color: 'white',
           width: '240px'
         }}>
-          {active ? (
+          {activeNodeData ? (
             <>
           <p className='text-sm font-semibold'>Origin</p>
           {
-            active?.node.data?.origin ? <a href={active.node.data.origin} className='text-xs underline text-blue-600 hover:text-blue-800'>
-             {active.node.data.origin}
-            </a> : <p className={'text-xs font-muted'}>unknown</p>
+            activeNodeData.origin ? <a className='text-xs underline text-blue-600 hover:text-blue-800' href={activeNodeData.origin}>
+             {activeNodeData.origin}
+            </a> : <p className="text-xs font-muted">unknown</p>
           }
           <p className='text-sm font-semibold'>Did</p>
-          {
-            active?.node.data?.did ? <p className='text-xs break-words overflow-scroll max-h-32'>
-              {active.node.data.did}
-            </p> : null
-          }
+            <p className='text-xs break-words overflow-scroll max-h-32'>
+              {activeNodeData.did}
+            </p>
           </>
             ) : <p className='text-sm font-muted font-semibold'>
             None Selected

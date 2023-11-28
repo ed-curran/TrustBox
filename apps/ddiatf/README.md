@@ -1,4 +1,4 @@
-## Demo Digital Identity and Attributes Trust Framework (DDIATF)
+## TrustUK (FKA. DDIATF)
 
 This is a simple demonstration site playing the role of a trust framework author. 
 Specifically, this author is modelled after the department for science, innovation and technology (DSIT) in the UK.
@@ -7,13 +7,13 @@ The policy describes the concept of schemes, that would allow industries to crea
 
 To show how this might work, this demonstration site publishes a trust framework (as a [trust establishment document](https://identity.foundation/trust-establishment/)) 
 that identifies scheme operators. 
-One of the schemes is the [Demo Property Data Trust Framework](../web/README.md) (DPDTF).
+One of the schemes is [HomebuyingUK](../web/README.md).
 
 The demonstration site is intended to be used with [TrustSight](https://chromewebstore.google.com/detail/trustsight/gkodecajacijdbagcleeadfpbbdloblc), a chrome extension that gives users visibility
 of the trust information baked into the background of the site.
 
 As usual, the trust backbone has been generated from a [trust model](../../packages/demo/README.md) using [TrustBench](../../packages/trustbench/README.md). 
-The DDIATF site maps to the `ddsit` (Demo DSIT) entity in the model.
+The TrustUK site maps to the `ddsit` (Demo DSIT) entity in the model.
 
 
 

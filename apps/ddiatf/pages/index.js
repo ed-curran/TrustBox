@@ -7,11 +7,8 @@ const Home = () => {
   return (
     <>
       <Head>
-        <title>Demo Digital Identity Trust Framework</title>
-        <meta
-          name="description"
-          content="Demo Digital Identity and Attributes Trust Framework"
-        />
+        <title>TrustUK</title>
+        <meta name="description" content="Trust UK" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -20,6 +17,6 @@ const Home = () => {
       <Footer />
     </>
   );
-}
+};
 
 export default Home;

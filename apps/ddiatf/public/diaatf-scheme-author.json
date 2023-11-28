@@ -1,7 +1,7 @@
 {
-  "$id": "https://trust-sight-ddiatf.vercel.app/diaatf-scheme-author.json",
+  "$id": "https://trust-uk.vercel.app/diaatf-scheme-author.json",
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "title": "Scheme author of the digital identity and attributes trust framework",
+  "title": "Scheme operator within TrustUK",
   "type": "object",
   "properties": {
     "name": {
