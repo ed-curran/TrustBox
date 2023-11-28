@@ -1,6 +1,7 @@
 "use-client";
-import {WellKnownDidVerifier} from '@sphereon/wellknown-dids-client'
-import type {SvgProps, GraphCanvasRef, GraphNode } from 'reagraph'
+import type {WellKnownDidVerifier} from '@sphereon/wellknown-dids-client'
+import {SvgProps, GraphCanvasRef, GraphNode, InternalGraphNode, CollapseProps} from 'reagraph';
+import type * as R from 'reagraph'
 import React, { useEffect, useRef, useState } from "react";
 import { Web5 } from "@web5/api";
 import type { TrustEstablishmentDoc } from "trustlib";
@@ -25,7 +26,6 @@ const GraphCanvas = dynamic(
   { ssr: false },
 );
 
-
 const SphereWithIcon = dynamic(
   () => import("reagraph").then((dep) => dep.SphereWithIcon),
   { ssr: false },
@@ -35,6 +35,16 @@ const SphereWithIcon = dynamic(
 export function TrustGraph() {
   const [filter, setFilter] = useQueryParam("filter", StringParam);
 
+
+  // const [useSelection, setUseSelection] = useState<(typeof R['useSelection']) | null>(null)
+  // useEffect(() => {
+  //  import('reagraph').then(({useSelection: useSelectionImport}) => {
+  //    console.log(useSelectionImport)
+  //    setUseSelection(useSelectionImport)
+  //   }, () => {
+  //    //do nothing
+  //  })
+  // }, []);
   //parsing twice :(
   const parsedFilter = filter ? parseFilter(filter) : undefined;
 
@@ -70,7 +80,7 @@ export function TrustGraphViewer({ filter }: TrustGraphViewerProps) {
   const [edges, setEdges] = useState<TrustGraphEdge[]>([]);
   const [searching, setSearching] = useState<boolean>(true);
 
-  const verifier = useRef<WellKnownDidVerifier | null>(null)
+  const verifier = useRef<WellKnownDidVerifier>(newVerifier())
   useEffect(() => {
     Web5.connect().then(
       (connection) => {
@@ -81,13 +91,10 @@ export function TrustGraphViewer({ filter }: TrustGraphViewerProps) {
         //do nothing
       },
     );
-    verifier.current = newVerifier()
   }, []);
 
-  const graphRef = useRef<GraphCanvasRef | null>(null);
-
   useEffect(() => {
-    if (!web5 || !myDid || !verifier.current) return;
+    if (!web5 || !myDid) return;
     //filter has changed, initiate new search
     setSearching(true);
     setDocs(null);
@@ -107,7 +114,17 @@ export function TrustGraphViewer({ filter }: TrustGraphViewerProps) {
     }).then(() => {
       setSearching(false)
     });
-  }, [web5, myDid, filter, verifier.current]);
+  }, [web5, myDid, filter]);
+
+  const [active, setActive] = useState<{node: InternalGraphNode, props: CollapseProps | undefined} | null>(null);
+
+  const graphRef = useRef<GraphCanvasRef | null>(null);
+  // console.log(useSelection)
+  // const { selections, onNodeClick, onCanvasClick } = useSelection({
+  //   ref: graphRef,
+  //   nodes,
+  //   edges
+  // });
 
   return (
     <div className="w-full h-100% flex-1 flex">
@@ -119,18 +136,59 @@ export function TrustGraphViewer({ filter }: TrustGraphViewerProps) {
       ) : null}
       {(!searching && (!docs || docs.length === 0)) ?  <p>no trust docs found</p> : null}
 
-      <GraphCanvas
-        edges={edges}
-        labelType="all"
-        layoutType="treeTd2d"
-        nodes={nodes}
-        ref={graphRef}
-        renderNode={({
-                       node,
-                       ...rest
-                     }) => <Jdenticon {...rest} node={node} value={node.id} />
-        }
-      />
+      <div className='flex-1 relative'>
+        <div className={'space-y-2'} style={{
+          zIndex: 9,
+          position: 'absolute',
+          top: 15,
+          right: 15,
+          background: 'rgba(0, 0, 0, .5)',
+          padding: 10,
+          color: 'white',
+          width: '240px'
+        }}>
+          {active ? (
+            <>
+          <p className='text-sm font-semibold'>Origin</p>
+          {
+            active?.node.data?.origin ? <a href={active.node.data.origin} className='text-xs underline text-blue-600 hover:text-blue-800'>
+             {active.node.data.origin}
+            </a> : <p className={'text-xs font-muted'}>unknown</p>
+          }
+          <p className='text-sm font-semibold'>Did</p>
+          {
+            active?.node.data?.did ? <p className='text-xs break-words overflow-scroll max-h-32'>
+              {active.node.data.did}
+            </p> : null
+          }
+          </>
+            ) : <p className='text-sm font-muted font-semibold'>
+            None Selected
+          </p>
+          }
+        </div>
+        <GraphCanvas
+          edges={edges}
+          labelType="all"
+          layoutType="treeTd2d"
+          nodes={nodes}
+          onNodeClick={(node, props) => {
+            setActive({
+              node,
+              props
+            })
+          }
+          }
+
+          ref={graphRef}
+          renderNode={({
+                         node,
+                         ...rest
+                       }) => <Jdenticon {...rest} node={node} value={node.id} />
+          }
+
+        />
+      </div>
     </div>
   );
 }
@@ -206,16 +264,15 @@ export function Jdenticon({
       svgString.current = toSvg(value, 100);
     }
   }, [value]);
-
   //godamn nothing is ever easy is it this took me 3 hours to figure out
   const hmm = `data:image/svg+xml;base64,${btoa(svgString.current ?? '')}`
 
   return (
     <SphereWithIcon
         {...rest}
-        node={node}
+        color="ghostwhite"
         image={hmm}
-        color={'ghostwhite'}
+        node={node}
       />
   );
 }

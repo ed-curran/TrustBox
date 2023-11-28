@@ -233,7 +233,11 @@ function addEntity({seen, graph}: IndexedGraph, entity: {did: string}) {
   graph.nodes.push({
     id: entity.did,
     label: undefined,
-    size: 40
+    size: 40,
+    data: {
+      origin: undefined,
+      did: entity.did
+    }
   });
   seen.nodes.set(entity.did, graph.nodes.length - 1);
   return true
@@ -247,7 +251,11 @@ function putEntity({graph, seen}: IndexedGraph, entity: {did: string, origin?: s
     graph.nodes.push({
       id: entity.did,
       label: host,
-      size: 40
+      size: 40,
+      data: {
+        origin: entity.origin,
+        did: entity.did
+      }
     });
     seen.nodes.set(entity.did, graph.nodes.length - 1);
     return
@@ -258,6 +266,10 @@ function putEntity({graph, seen}: IndexedGraph, entity: {did: string, origin?: s
   graph.nodes[existingIndex] = {
     id: existingNode.id,
     label: host,
-    size: existingNode.size
+    size: existingNode.size,
+    data: {
+      origin: entity.origin,
+      did: entity.did
+    }
   }
 }
