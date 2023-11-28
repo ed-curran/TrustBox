@@ -34,7 +34,10 @@
     "@veramo/did-provider-ion": "^5.5.3",
     "@veramo/did-provider-key": "^5.5.3",
     "@veramo/did-provider-web": "^5.5.3",
-    "@veramo/did-resolver": "^5.5.3"
+    "@veramo/did-resolver": "^5.5.3",
+    "key-did-resolver": "^3.0.0",
+    "web-did-resolver": "^2.0.27",
+    "did-resolver": "^4.1.0"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^13.4.19",

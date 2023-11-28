@@ -1,7 +1,5 @@
-import {WellKnownDidVerifier} from '@sphereon/wellknown-dids-client'
-
 "use-client";
-
+import {WellKnownDidVerifier} from '@sphereon/wellknown-dids-client'
 import type {SvgProps, GraphCanvasRef, GraphNode } from 'reagraph'
 import React, { useEffect, useRef, useState } from "react";
 import { Web5 } from "@web5/api";
@@ -83,9 +81,7 @@ export function TrustGraphViewer({ filter }: TrustGraphViewerProps) {
         //do nothing
       },
     );
-    newVerifier().then(freshVerifier => {verifier.current = freshVerifier},  () => {
-      //do nothing
-    },)
+    verifier.current = newVerifier()
   }, []);
 
   const graphRef = useRef<GraphCanvasRef | null>(null);

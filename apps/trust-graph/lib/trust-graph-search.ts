@@ -3,8 +3,8 @@ import type {Web5} from "@web5/api";
 import type {Triple, TrustEstablishmentDoc} from "trustlib";
 import {aggregatedEdgeId, toTriples} from "trustlib";
 import type {GraphElementBaseAttributes} from "reagraph/dist/types";
-import {newVerifier} from '@/lib/domainverifier/verifier'
-import {ValidationStatusEnum, WellKnownDidVerifier} from '@sphereon/wellknown-dids-client'
+import type { WellKnownDidVerifier} from '@sphereon/wellknown-dids-client';
+import {ValidationStatusEnum} from '@sphereon/wellknown-dids-client'
 
 export interface TrustGraphEdge
   extends GraphElementBaseAttributes<{ count: number }> {
@@ -58,7 +58,6 @@ export async function search(
   putEntity(graph, {did: nodeFilter.value, origin})
   listeners.onUpdateNodes(graph.graph.nodes)
 
-  console.log(linkedDomains)
   //todo validate domains
   //need to do an explicit add
   const foundDocs = await fetchDocsFromDwn(nodeFilter.value, web5);
@@ -69,7 +68,6 @@ export async function search(
   const triples = foundDocs.flatMap((doc) => toTriples(doc));
   const { indexedGraph: mergedGraph, newSubjects } = merge(graph, triples);
 
-  console.log({newSubjects})
   listeners.onUpdateNodes(mergedGraph.graph.nodes.slice());
   listeners.onUpdateEdges(mergedGraph.graph.edges.slice());
 
@@ -82,7 +80,7 @@ export async function search(
 
 //use the did doc to find any linked domains
 //https://identity.foundation/.well-known/resources/did-configuration/#linked-domain-service-endpoint
-async function fetchLinkedDomains(did: string, web5: Web5, verifier: WellKnownDidVerifier): Promise<string[]> {
+async function fetchLinkedDomains(did: string, web5: Web5, verifier: WellKnownDidVerifier): Promise<string[] | undefined> {
   const didResolutionResult = await web5.did.resolve(did).catch(() => undefined)
   if(!didResolutionResult?.didDocument) {
     return undefined;
@@ -110,13 +108,11 @@ async function fetchLinkedDomains(did: string, web5: Web5, verifier: WellKnownDi
   //can't figure out how to do this with a single flatmap
   //cus the promises get in the way
   const validatedDomains = await Promise.all(linkedDomains.map(async domain => {
-    const result = await verifier.verifyResource({origin: domain}).catch((reason) => {
-      console.log(reason)
+    const result = await verifier.verifyResource({origin: domain}).catch(() => {
       return undefined
     })
     if(!result) return undefined
-    if(result.status === ValidationStatusEnum.VALID) {
-      console.log(result.credentials)
+    if(result.status === ValidationStatusEnum.INVALID) {
       return undefined
     }
     return domain
@@ -173,7 +169,7 @@ function merge(initial: IndexedGraph, triples: Triple[]) {
   );
 }
 
-function truncateDid(str: string, n = 36) {
+export function truncateDid(str: string, n = 36) {
   return str.length > n ? `${str.slice(0, n - 1)  }...` : str;
 }
 
@@ -201,8 +197,6 @@ function addAssertionTriple({graph, seen}: IndexedGraph, triple: Triple) {
   const existingEdgeIndex = seen.edges.get(edgeId);
 
   if (existingEdgeIndex) {
-    console.log('updating triple')
-    console.log(triple)
     const existingEdge = graph.edges[existingEdgeIndex];
     const count = existingEdge.data ? existingEdge.data.count + 1 : 1;
     graph.edges[existingEdgeIndex] = {
@@ -216,8 +210,6 @@ function addAssertionTriple({graph, seen}: IndexedGraph, triple: Triple) {
       },
     };
   } else {
-    console.log('new triple')
-    console.log(triple)
     const count = 1;
     graph.edges.push({
       id: edgeId,
@@ -260,8 +252,8 @@ function putEntity({graph, seen}: IndexedGraph, entity: {did: string, origin?: s
     seen.nodes.set(entity.did, graph.nodes.length - 1);
     return
   }
-  const existingNode: GraphNode | undefined = graph.nodes[existingIndex]
-  if(!existingNode) return false
+  if(existingIndex >= graph.nodes.length) return false
+  const existingNode = graph.nodes[existingIndex]
 
   graph.nodes[existingIndex] = {
     id: existingNode.id,

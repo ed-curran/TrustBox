@@ -260,9 +260,15 @@ importers:
       crypto-browserify:
         specifier: 3.12.0
         version: 3.12.0
+      did-resolver:
+        specifier: ^4.1.0
+        version: 4.1.0
       jdenticon:
         specifier: ^3.2.0
         version: 3.2.0
+      key-did-resolver:
+        specifier: ^3.0.0
+        version: 3.0.0
       lucide-react:
         specifier: ^0.293.0
         version: 0.293.0(react@18.2.0)
@@ -302,6 +308,9 @@ importers:
       use-query-params:
         specifier: ^2.2.1
         version: 2.2.1(react-dom@18.2.0)(react@18.2.0)
+      web-did-resolver:
+        specifier: ^2.0.27
+        version: 2.0.27
     devDependencies:
       '@next/eslint-plugin-next':
         specifier: ^13.4.19

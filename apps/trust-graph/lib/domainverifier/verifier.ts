@@ -1,18 +1,17 @@
 //from https://github.com/Sphereon-Opensource/wellknown-did-client/blob/develop/test/resources/verifiers/VcJsVerifier.ts
+import type {
+  IVerifyCallbackArgs} from '@sphereon/wellknown-dids-client';
 import {
-  IVerifyCallbackArgs,
   ProofFormatTypesEnum,
   WellKnownDidVerifier,
 } from '@sphereon/wellknown-dids-client';
-import { veramoAgent, VeramoAgent } from './veramoAgent';
+import type { VeramoAgent } from './veramo-agent';
+import { veramoAgent } from './veramo-agent';
 
 export function getVerifyCredentialCallback(agent: VeramoAgent) {
   return async (args: IVerifyCallbackArgs) => {
     //can't verify JSON-LD yet
     if (args.proofFormat === ProofFormatTypesEnum.JSON_LD) {
-      console.log(
-        "warn: TrustSight doesn't support JSON_LD domain linked credentials yet. Signature will be considered invalid.",
-      );
       return {
         verified: false,
       };
@@ -25,7 +24,6 @@ export function getVerifyCredentialCallback(agent: VeramoAgent) {
         verified: result.verified,
       };
     } catch (e) {
-      console.log(e);
       return {
         verified: false,
       };
@@ -33,8 +31,8 @@ export function getVerifyCredentialCallback(agent: VeramoAgent) {
   };
 }
 
-export const newVerifier = async () => {
-  const agent = await veramoAgent();
+export const newVerifier = () => {
+  const agent = veramoAgent();
   const verify = getVerifyCredentialCallback(agent);
   return new WellKnownDidVerifier({ verifySignatureCallback: verify });
 };

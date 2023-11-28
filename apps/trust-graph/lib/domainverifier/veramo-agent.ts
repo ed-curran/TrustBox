@@ -1,18 +1,16 @@
 // W3C Verifiable Credential plugin
 import { Resolver } from 'did-resolver'
-
-import {
+import type {
   IDataStore,
   IDataStoreORM,
   TAgent,
-  ICredentialPlugin,
+  ICredentialPlugin} from '@veramo/core';
+import {
   createAgent
 } from '@veramo/core';
-
 import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { getResolver as webDidResolver } from 'web-did-resolver'
 import { getResolver as keyDidResolver } from 'key-did-resolver';
-
 import { CredentialPlugin } from '@veramo/credential-w3c';
 
 //this is from https://github.com/decentralized-identity/ion-tools/blob/main/src/utils.js
@@ -38,7 +36,7 @@ export async function resolve(didUri: string) {
 export type VeramoAgent = TAgent<
   IDataStore & IDataStoreORM & ICredentialPlugin
 >;
-export const veramoAgent = async (environmentName?: string) => {
+export const veramoAgent = () => {
   return createAgent<
     IDataStore & IDataStoreORM & ICredentialPlugin
   >({
