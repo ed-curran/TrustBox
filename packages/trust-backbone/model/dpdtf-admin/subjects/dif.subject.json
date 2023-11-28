@@ -2,8 +2,5 @@
   "dpdtf-participant": {
     "name": "dif",
     "domain": "https://identity.foundation"
-  },
-  "dpdtf-issuer": {
-    "credentials": ["Test"]
   }
 }

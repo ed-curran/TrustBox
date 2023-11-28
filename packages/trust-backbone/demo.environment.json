@@ -1,17 +1,18 @@
 {
+  "publishWithWeb5": true,
   "entities": {
     "ddsit": {
-    "didType": "did:key",
-    "origin": "https://trust-sight-ddiatf.vercel.app",
-    "didConfiguration": true,
-    "additionalOutDir": "../../apps/ddiatf/public"
-  },
-  "dpdtf-admin": {
+      "didType": "did:key",
+      "origin": "https://trust-sight-ddiatf.vercel.app",
+      "didConfiguration": true,
+      "additionalOutDir": "../../apps/ddiatf/public"
+    },
+    "dpdtf-admin": {
       "didType": "did:key",
       "origin": "https://trust-sight-dpdtf.vercel.app",
       "didConfiguration": true,
-    "additionalOutDir": "../../apps/dpdtf/public"
-  },
+      "additionalOutDir": "../../apps/dpdtf/public"
+    },
     "property-prepper": {
       "didType": "did:key",
       "origin": "https://trust-sight-property-prepper.vercel.app",

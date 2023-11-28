@@ -1,13 +1,10 @@
-import type { GraphNode } from "reagraph";
-import type { Web5 } from "@web5/api";
-import type {
-  Triple,
-  TrustEstablishmentDoc} from "trustlib";
-import {
-  aggregatedEdgeId,
-  toTriples
-} from "trustlib";
-import type { GraphElementBaseAttributes } from "reagraph/dist/types";
+import type {GraphNode} from "reagraph";
+import type {Web5} from "@web5/api";
+import type {Triple, TrustEstablishmentDoc} from "trustlib";
+import {aggregatedEdgeId, toTriples} from "trustlib";
+import type {GraphElementBaseAttributes} from "reagraph/dist/types";
+import {newVerifier} from '@/lib/domainverifier/verifier'
+import {ValidationStatusEnum, WellKnownDidVerifier} from '@sphereon/wellknown-dids-client'
 
 export interface TrustGraphEdge
   extends GraphElementBaseAttributes<{ count: number }> {
@@ -21,7 +18,7 @@ export interface TrustGraph {
 }
 
 interface GraphIndex {
-  nodes: Set<string>;
+  nodes: Map<string, number>;
   edges: Map<string, number>;
 }
 //this is annoying, if this reagraph gave us access to the underlying grapholgy data structure we wouldn't need to do this
@@ -35,24 +32,64 @@ export interface ValidFilter {
   value: string;
 }
 
-
+//this is just a graph traversal
+//except its somewhat tricky because we're building the graph as we go and its async.
+//we take a greedy approach to adding nodes as soon we see them, so that we can start rendering stuff as soon as possible
+//it also helps keep the graph consistent e.g. edges always have nodes when the listeners are called.
+//this adds the need to go back and  update details (like linked domain) of nodes we've already added
+//which is the ugliest part.
 export async function search(
   nodeFilter: ValidFilter,
   web5: Web5,
+  verifier: WellKnownDidVerifier,
   graph: IndexedGraph,
   listeners: {
     onUpdateEdges: (edges: TrustGraphEdge[]) => void;
     onUpdateNodes: (nodes: GraphNode[]) => void;
     onUpdateDocs: (docs: TrustEstablishmentDoc[]) => void;
-    onComplete: () => void;
   },
 ) {
-  const didResolutionResult = await web5.did.resolve(nodeFilter.value).catch(() => undefined)
+  const linkedDomains = await fetchLinkedDomains(nodeFilter.value, web5, verifier)
+  //undefined here means we couldn't even resolve the did doc which is a bad sign
+  if(!linkedDomains) return
+
+  const origin: string | undefined = linkedDomains[0]
+  //we may have already seen this entity, in which case this will update it with an origin
+  putEntity(graph, {did: nodeFilter.value, origin})
+  listeners.onUpdateNodes(graph.graph.nodes)
+
+  console.log(linkedDomains)
+  //todo validate domains
+  //need to do an explicit add
+  const foundDocs = await fetchDocsFromDwn(nodeFilter.value, web5);
+  if(foundDocs.length === 0) return
+
+  listeners.onUpdateDocs(foundDocs);
+
+  const triples = foundDocs.flatMap((doc) => toTriples(doc));
+  const { indexedGraph: mergedGraph, newSubjects } = merge(graph, triples);
+
+  console.log({newSubjects})
+  listeners.onUpdateNodes(mergedGraph.graph.nodes.slice());
+  listeners.onUpdateEdges(mergedGraph.graph.edges.slice());
+
+  await Promise.allSettled(
+    newSubjects.map((subjectId) =>
+      search({ type: "did", value: subjectId }, web5, verifier, mergedGraph, listeners),
+    ),
+  );
+}
+
+//use the did doc to find any linked domains
+//https://identity.foundation/.well-known/resources/did-configuration/#linked-domain-service-endpoint
+async function fetchLinkedDomains(did: string, web5: Web5, verifier: WellKnownDidVerifier): Promise<string[]> {
+  const didResolutionResult = await web5.did.resolve(did).catch(() => undefined)
   if(!didResolutionResult?.didDocument) {
-    listeners.onComplete();
-    return;
+    return undefined;
   }
-  const _linkedDomains: string[] = didResolutionResult.didDocument.service ? didResolutionResult.didDocument.service.flatMap((serviceEntry) => {
+
+  //todo verify these domains with welknown did configuration
+  const linkedDomains = didResolutionResult.didDocument.service ? didResolutionResult.didDocument.service.flatMap((serviceEntry) => {
     if(serviceEntry.type === 'LinkedDomains') {
       const serviceEndpoint = serviceEntry.serviceEndpoint
       if(typeof serviceEndpoint === 'string') return [serviceEndpoint]
@@ -69,28 +106,23 @@ export async function search(
     return []
 
   }) : []
-  // console.log(linkedDomains)
-  //todo validate domains
-  //need to do an explicit add
-  const foundDocs = await fetchDocsFromDwn(nodeFilter.value, web5);
-  if (foundDocs.length > 0) listeners.onUpdateDocs(foundDocs);
-  else {
-    listeners.onComplete();
-    return;
-  }
 
-  const triples = foundDocs.flatMap((doc) => toTriples(doc));
-  const { indexedGraph: mergedGraph, newSubjects } = merge(graph, triples);
+  //can't figure out how to do this with a single flatmap
+  //cus the promises get in the way
+  const validatedDomains = await Promise.all(linkedDomains.map(async domain => {
+    const result = await verifier.verifyResource({origin: domain}).catch((reason) => {
+      console.log(reason)
+      return undefined
+    })
+    if(!result) return undefined
+    if(result.status === ValidationStatusEnum.VALID) {
+      console.log(result.credentials)
+      return undefined
+    }
+    return domain
+  }))
 
-  listeners.onUpdateNodes(mergedGraph.graph.nodes.slice());
-  listeners.onUpdateEdges(mergedGraph.graph.edges.slice());
-
-  await Promise.all(
-    newSubjects.map((subjectId) =>
-      search({ type: "did", value: subjectId }, web5, mergedGraph, listeners),
-    ),
-  );
-  listeners.onComplete();
+  return validatedDomains.flatMap(validatedDomain => validatedDomain ? [validatedDomain] : [])
 }
 
 async function fetchDocsFromDwn(
@@ -122,56 +154,14 @@ async function fetchDocsFromDwn(
 function merge(initial: IndexedGraph, triples: Triple[]) {
   return triples.reduce(
     (agg, triple) => {
-      const graph = agg.indexedGraph.graph;
-      const seen = agg.indexedGraph.seen;
+      //by adding all these together we ensure we get a minimal renderable graph
+      addAssertionTriple(agg.indexedGraph, triple)
+      addEntity(agg.indexedGraph, {did: triple.object})
+      const isNewSubject = addEntity(agg.indexedGraph, {did: triple.subject})
 
-      //todo: theres a bug in deduping and counting the edges
-      const edgeId = aggregatedEdgeId(triple);
-      const existingEdgeIndex = seen.edges.get(edgeId);
-      if (existingEdgeIndex) {
-        const existingEdge = graph.edges[existingEdgeIndex];
-        const count = existingEdge.data ? existingEdge.data.count + 1 : 1;
-        graph.edges[existingEdgeIndex] = {
-          id: edgeId,
-          source: existingEdge.source,
-          target: existingEdge.target,
-          label: count.toString(),
-          size: count,
-          data: {
-            count,
-          },
-        };
-      } else {
-        const count = 1;
-        graph.edges.push({
-          id: edgeId,
-          source: triple.object,
-          target: triple.subject,
-          label: count.toString(),
-          size: count,
-          data: {
-            count,
-          },
-        });
-        seen.edges.set(edgeId, graph.edges.length - 1);
-      }
-
-      if (!seen.nodes.has(triple.object)) {
-        seen.nodes.add(triple.object);
-        graph.nodes.push({
-          id: triple.object,
-          label: truncateDid(triple.object),
-          size: 40
-        });
-      }
-      if (!seen.nodes.has(triple.subject)) {
-        seen.nodes.add(triple.subject);
+      if (isNewSubject) {
+        //these are the children that we're going to traverse next
         agg.newSubjects.push(triple.subject);
-        graph.nodes.push({
-          id: triple.subject,
-          label: truncateDid(triple.subject),
-          size: 40
-        });
       }
 
       return agg;
@@ -187,64 +177,95 @@ function truncateDid(str: string, n = 36) {
   return str.length > n ? `${str.slice(0, n - 1)  }...` : str;
 }
 
-export function newIndexedGraph() {
+export function newIndexedGraph(): IndexedGraph {
   return {
     graph: {
       nodes: new Array<GraphNode>(),
       edges: new Array<TrustGraphEdge>(),
     },
     seen: {
-      nodes: new Set<string>(),
+      nodes: new Map<string, number>(),
       edges: new Map<string, number>(),
     },
   };
 }
 
-// function diffGraph(seen: GraphIndex, triples: Triple[]) {
-//   return merge(
-//     {
-//       graph: {
-//         nodes: [],
-//         edges: [],
-//       },
-//       seen: {
-//         nodes: seen.nodes,
-//         edges: seen.edges,
-//       },
-//     },
-//     triples,
-//   ).indexedGraph;
-// }
-// let globalSeen = newIndexedGraph().seen;
-// async function searchOld(
-//   nodeFilter: ValidFilter,
-//   web5: Web5,
-//   seen: GraphIndex,
-//   listeners: {
-//     onUpdateEdges: (edges: TrustGraphEdge[]) => void;
-//     onUpdateNodes: (nodes: GraphNode[]) => void;
-//     onUpdateDocs: (docs: TrustEstablishmentDoc[]) => void;
-//     onComplete: () => void;
-//   },
-// ) {
-//   if (seen.nodes.has(nodeFilter.value)) return;
+//yeah this stuff should co-located with the data structure probably
+
+//an assertion triple is combined with other triples of the same object and subject
+//to create a single weighted edge
 //
-//   const foundDocs = await fetchDocsFromDwn(nodeFilter.value, web5);
-//   if (foundDocs.length > 0) listeners.onUpdateDocs(foundDocs);
-//
-//   const triples = foundDocs.flatMap((doc) => toTriples(doc));
-//   const diff = diffGraph(seen, triples);
-//   if (diff.graph.nodes.length > 0) {
-//     listeners.onUpdateNodes(diff.graph.nodes);
-//   }
-//   if (diff.graph.edges.length > 0) {
-//     listeners.onUpdateEdges(diff.graph.edges);
-//   }
-//
-//   await Promise.all(
-//     diff.graph.nodes.map((node) =>
-//       search({ type: "did", value: node.id }, web5, diff.seen, listeners),
-//     ),
-//   );
-//   listeners.onComplete();
-// }
+function addAssertionTriple({graph, seen}: IndexedGraph, triple: Triple) {
+  //todo: theres a bug in deduping and counting the edges
+  const edgeId = aggregatedEdgeId(triple);
+  const existingEdgeIndex = seen.edges.get(edgeId);
+
+  if (existingEdgeIndex) {
+    console.log('updating triple')
+    console.log(triple)
+    const existingEdge = graph.edges[existingEdgeIndex];
+    const count = existingEdge.data ? existingEdge.data.count + 1 : 1;
+    graph.edges[existingEdgeIndex] = {
+      id: edgeId,
+      source: existingEdge.source,
+      target: existingEdge.target,
+      label: count.toString(),
+      size: count,
+      data: {
+        count,
+      },
+    };
+  } else {
+    console.log('new triple')
+    console.log(triple)
+    const count = 1;
+    graph.edges.push({
+      id: edgeId,
+      source: triple.object,
+      target: triple.subject,
+      label: count.toString(),
+      size: count,
+      data: {
+        count,
+      },
+    });
+    seen.edges.set(edgeId, graph.edges.length - 1);
+  }
+}
+
+//an entity is represented by a node in the graph
+//create entity or do nothing if its already been seen
+function addEntity({seen, graph}: IndexedGraph, entity: {did: string, origin?: string}) {
+  const host = entity.origin ? new URL(entity.origin).host : undefined
+  if(seen.nodes.has(entity.did)) return false
+  graph.nodes.push({
+    id: entity.did,
+    label: host,
+    size: 40
+  });
+  seen.nodes.set(entity.did, graph.nodes.length - 1);
+  return true
+}
+
+//create or update an entity
+function putEntity({graph, seen}: IndexedGraph, entity: {did: string, origin?: string}) {
+  const host = entity.origin ? new URL(entity.origin).host : undefined
+  const existingIndex = seen.nodes.get(entity.did)
+  if(!existingIndex) {
+    graph.nodes.push({
+      id: entity.did,
+      label: host,
+      size: 40
+    });
+    seen.nodes.set(entity.did, graph.nodes.length - 1);
+    return
+  }
+  const existingNode: GraphNode | undefined = graph.nodes[existingIndex]
+  if(!existingNode) return false
+
+  graph.nodes[existingIndex] = {
+    id: existingNode.id,
+    label: host,
+    size: existingNode.size
+  }
+}

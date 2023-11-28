@@ -1,3 +1,5 @@
+import {WellKnownDidVerifier} from '@sphereon/wellknown-dids-client'
+
 "use-client";
 
 import type {SvgProps, GraphCanvasRef, GraphNode } from 'reagraph'
@@ -18,6 +20,7 @@ import type {
   ValidFilter} from "@/lib/trust-graph-search";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {newVerifier} from '@/lib/domainverifier/verifier'
 
 const GraphCanvas = dynamic(
   () => import("reagraph").then((dep) => dep.GraphCanvas),
@@ -69,6 +72,7 @@ export function TrustGraphViewer({ filter }: TrustGraphViewerProps) {
   const [edges, setEdges] = useState<TrustGraphEdge[]>([]);
   const [searching, setSearching] = useState<boolean>(true);
 
+  const verifier = useRef<WellKnownDidVerifier | null>(null)
   useEffect(() => {
     Web5.connect().then(
       (connection) => {
@@ -79,19 +83,22 @@ export function TrustGraphViewer({ filter }: TrustGraphViewerProps) {
         //do nothing
       },
     );
+    newVerifier().then(freshVerifier => {verifier.current = freshVerifier},  () => {
+      //do nothing
+    },)
   }, []);
 
   const graphRef = useRef<GraphCanvasRef | null>(null);
 
   useEffect(() => {
-    if (!web5 || !myDid) return;
+    if (!web5 || !myDid || !verifier.current) return;
     //filter has changed, initiate new search
     setSearching(true);
     setDocs(null);
     setEdges([]);
     setNodes([]);
 
-    void search(filter, web5, newIndexedGraph(), {
+    void search(filter, web5, verifier.current, newIndexedGraph(), {
       onUpdateEdges: (newEdges) => {
         setEdges(newEdges);
       },
@@ -100,12 +107,11 @@ export function TrustGraphViewer({ filter }: TrustGraphViewerProps) {
       },
       onUpdateDocs: (newDocs) => {
         setDocs((currentDocs) => (currentDocs ?? []).concat(newDocs));
-      },
-      onComplete: () => {
-        setSearching(false);
-      },
+      }
+    }).then(() => {
+      setSearching(false)
     });
-  }, [web5, myDid, filter]);
+  }, [web5, myDid, filter, verifier.current]);
 
   return (
     <div className="w-full h-100% flex-1 flex">
