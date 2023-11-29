@@ -52,7 +52,7 @@ function Hero() {
       </ScrollAnimationWrapper>
       <ScrollAnimationWrapper className="">
         <motion.div
-          className="mt-10 relative w-full flex flex-col justify-center"
+          className="mt-24 relative w-full flex flex-col justify-center"
           custom={{ duration: 2 }}
           variants={scrollAnimation}
         >
@@ -60,10 +60,7 @@ function Hero() {
             Certifies home buying and selling services across the UK
           </div>
           <div className="flex flex-wrap justify-center gap-5 mt-6 md:justify-around">
-            <a
-              className="z-50"
-              href={"https://trust-sight-property-prepper.vercel.app"}
-            >
+            <a className="z-50" href={"https://property-prepper.vercel.app"}>
               <div className="font-semibold">
                 <Image
                   className="mx-auto"

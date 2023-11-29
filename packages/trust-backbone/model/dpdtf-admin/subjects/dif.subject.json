@@ -1,6 +1,6 @@
 {
   "dpdtf-participant": {
     "name": "dif",
-    "domain": "https://identity.foundation"
+    "purpose": "just for demonstration of externally managed dids"
   }
 }

@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "build": "turbo run build --filter=!trust-backbone",
-    "dev": "turbo run dev --concurrency 12",
+    "dev": "turbo run dev --concurrency 12 --filter=!trust-backbone",
     "init": "cd packages/trust-backbone && pnpm run init && pnpm run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
