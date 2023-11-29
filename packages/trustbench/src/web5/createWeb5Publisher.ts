@@ -36,9 +36,7 @@ async function publishDraftTrustDoc(
 
   await existingRecord.send(did);
 
-  console.log(
-    `published trust doc with id ${existingRecord.id} and did=${did}`,
-  );
+  console.log(`published trust doc with id ${existingRecord.id}`);
   return trustDoc.id;
 }
 
