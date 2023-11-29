@@ -1,14 +1,14 @@
-import TrustBench from 'trust-bench'
-import * as dotenv from 'dotenv'
-dotenv.config({ debug: true })
+import TrustBench from "trust-bench";
+import * as dotenv from "dotenv";
+dotenv.config({ debug: true });
 
-const {build} = TrustBench
+const { build } = TrustBench;
 
 const args = process.argv.slice(2);
 
-const environmentName = args[0]
-if(!environmentName) {
-  throw Error("please provide an environment name as first arg")
+const environmentName = args[0];
+if (!environmentName) {
+  throw Error("please provide an environment name as first arg");
 }
 
 //this needs turning into an actual cli
@@ -18,5 +18,5 @@ if(!environmentName) {
 //and i grab the contents of that and copy it in to the public folder of the appropriate websites
 //(each dir represents an ssi entity)
 build(environmentName).then(() => {
-  console.log('nice');
+  //done
 });
