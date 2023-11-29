@@ -8,25 +8,7 @@ import ScrollAnimationWrapper from "./Layout/scroll-animation-wrapper";
 import LinkPrimary from "./misc/link-primary";
 import LinkSecondary from "./misc/link-outline";
 
-function Hero({
-  listUser = [
-    {
-      name: "Data Providers",
-      number: "10",
-      icon: "/assets/Icon/heroicons_sm-user.svg",
-    },
-    {
-      name: "Data Consumers",
-      number: "10",
-      icon: "/assets/Icon/gridicons_location.svg",
-    },
-    {
-      name: "Credential Types",
-      number: "5",
-      icon: "/assets/Icon/bx_bxs-server.svg",
-    },
-  ],
-}) {
+function Hero() {
   const scrollAnimation = useMemo(() => getScrollAnimation(), []);
 
   return (

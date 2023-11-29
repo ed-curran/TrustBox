@@ -68,7 +68,7 @@ const Hero = () => {
           </div>
 
           <div className="flex flex-wrap justify-center gap-5 mt-6 md:justify-around">
-            <a href={"https://trust-sight-dpdtf.vercel.app"}>
+            <a href={"https://homebuying-uk.vercel.app"}>
               <div className="text-gray-400 dark:text-gray-400 ">
                 <Image
                   className="mx-auto"
