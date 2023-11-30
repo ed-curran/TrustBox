@@ -9,12 +9,22 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
+    "@sphereon/wellknown-dids-client": "^0.1.3",
+    "@veramo/core": "^5.5.3",
+    "@veramo/credential-w3c": "^5.5.3",
+    "@veramo/did-provider-ion": "^5.5.3",
+    "@veramo/did-provider-key": "^5.5.3",
+    "@veramo/did-provider-web": "^5.5.3",
+    "@veramo/did-resolver": "^5.5.3",
     "@web5/api": "^0.8.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "crypto-browserify": "3.12.0",
+    "did-resolver": "^4.1.0",
     "jdenticon": "^3.2.0",
+    "key-did-resolver": "^3.0.0",
     "lucide-react": "^0.293.0",
     "next": "^13.4.19",
     "next-query-params": "^5.0.0",
@@ -28,16 +38,7 @@
     "trustlib": "workspace:*",
     "ui": "workspace:*",
     "use-query-params": "^2.2.1",
-    "@sphereon/wellknown-dids-client": "^0.1.3",
-    "@veramo/core": "^5.5.3",
-    "@veramo/credential-w3c": "^5.5.3",
-    "@veramo/did-provider-ion": "^5.5.3",
-    "@veramo/did-provider-key": "^5.5.3",
-    "@veramo/did-provider-web": "^5.5.3",
-    "@veramo/did-resolver": "^5.5.3",
-    "key-did-resolver": "^3.0.0",
-    "web-did-resolver": "^2.0.27",
-    "did-resolver": "^4.1.0"
+    "web-did-resolver": "^2.0.27"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^13.4.19",
@@ -50,6 +51,7 @@
     "tailwindcss": "^3.3.5",
     "tsconfig": "workspace:*",
     "typescript": "^4.5.3",
-    "webpack": "^5.89.0"
+    "webpack": "^5.89.0",
+    "tailwind-scrollbar": "^3.0.5"
   }
 }

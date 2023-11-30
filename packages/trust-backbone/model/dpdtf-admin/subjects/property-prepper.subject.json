@@ -1,9 +1,9 @@
 {
-    "dpdtf-participant": {
-      "name": "property-prepper",
-      "domain": "Prepare your property for moving day with a digital property pack"
-    },
-    "dpdtf-issuer": {
-      "credentials": ["PropertyPack"]
-    }
+  "dpdtf-participant": {
+    "name": "property-prepper",
+    "domain": "Prepare your property for moving day with a digital property pack"
+  },
+  "dpdtf-issuer": {
+    "credentials": ["PropertyPack"]
+  }
 }

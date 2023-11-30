@@ -1,63 +1,58 @@
 "use-client";
 import type {WellKnownDidVerifier} from '@sphereon/wellknown-dids-client'
 import type {SvgProps, GraphCanvasRef, GraphNode, InternalGraphNode, CollapseProps} from 'reagraph';
-import React, { useEffect, useRef, useState } from "react";
-import { Web5 } from "@web5/api";
-import type { TrustEstablishmentDoc } from "trustlib";
-import { StringParam, useQueryParam } from "use-query-params";
-import { Loader2 } from "lucide-react";
+import React, {memo, useEffect, useRef, useState} from "react";
+import {Web5} from "@web5/api";
+import type {TrustEstablishmentDoc} from "trustlib";
+import {StringParam, useQueryParam} from "use-query-params";
+import {Loader2} from "lucide-react";
 import dynamic from "next/dynamic";
 import {toSvg} from "jdenticon";
-import { cn } from "@/lib/utils";
+import {cn} from "@/lib/utils";
 import {
   newIndexedGraph,
   search
 } from "@/lib/trust-graph-search";
 import type {
   TrustGraphEdge,
-  ValidFilter} from "@/lib/trust-graph-search";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+  ValidFilter
+} from "@/lib/trust-graph-search";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
 import {newVerifier} from '@/lib/domainverifier/verifier'
 
 const GraphCanvas = dynamic(
   () => import("reagraph").then((dep) => dep.GraphCanvas),
-  { ssr: false },
+  {ssr: false},
 );
 
 const SphereWithIcon = dynamic(
   () => import("reagraph").then((dep) => dep.SphereWithIcon),
-  { ssr: false },
+  {ssr: false},
 );
 
 
 export function TrustGraph() {
   const [filter, setFilter] = useQueryParam("filter", StringParam);
-
-
-  // const [useSelection, setUseSelection] = useState<(typeof R['useSelection']) | null>(null)
-  // useEffect(() => {
-  //  import('reagraph').then(({useSelection: useSelectionImport}) => {
-  //    console.log(useSelectionImport)
-  //    setUseSelection(useSelectionImport)
-  //   }, () => {
-  //    //do nothing
-  //  })
-  // }, []);
-  //parsing twice :(
   const parsedFilter = filter ? parseFilter(filter) : undefined;
 
   return (
-    <div className="px-20 py-20 flex flex-1 flex-col">
+    <div className="py-20 flex flex-1 flex-col space-y-3 ">
       <FilterForm
-        className="px-8"
+        className="mx-20"
         initialValue={parsedFilter}
         onFilterSubmitted={(submittedFilter) => {
           setFilter(submittedFilter.value);
         }}
-      />
+      >
+        {/*{searching ? <p className={'px-4 h-4 flex-none inline-flex items-center'}>*/}
+        {/*  <Loader2 className="h-4 w-4 animate-spin mr-2" />*/}
+        {/*  /!*{!graphInitialised ? "searching..." : null}*!/*/}
+        {/*</p> : null}*/}
+      </FilterForm>
+
       {parsedFilter && parsedFilter.type !== "unknown" ? (
-        <TrustGraphViewer filter={parsedFilter} />
+        <TrustGraphViewer filter={parsedFilter}/>
       ) : (
         <p>please provide a filter</p>
       )}
@@ -67,16 +62,21 @@ export function TrustGraph() {
 
 interface TrustGraphViewerProps {
   filter: ValidFilter;
+  // onGraphInitialised(): void
+  // onSearchComplete(): void
+
 }
 
-export function TrustGraphViewer({ filter }: TrustGraphViewerProps) {
+//its rather important this doesn't get rerendered cus the opengl context gets reloaded
+const TrustGraphViewer = memo(function TrustGraphViewer({filter}: TrustGraphViewerProps) {
   const [web5, setWeb5] = useState<Web5 | null>(null);
   const [myDid, setMyDid] = useState<string | null>(null);
 
-  const [docs, setDocs] = useState<TrustEstablishmentDoc[] | null>(null);
+  const [_docs, setDocs] = useState<TrustEstablishmentDoc[] | null>(null);
   //i'm not getting any value out of nodes and edges being seperate atm, cus they're always being updated together
   const [nodes, setNodes] = useState<GraphNode[]>([]);
   const [edges, setEdges] = useState<TrustGraphEdge[]>([]);
+
   const [searching, setSearching] = useState<boolean>(true);
 
   const verifier = useRef<WellKnownDidVerifier>(newVerifier())
@@ -95,7 +95,7 @@ export function TrustGraphViewer({ filter }: TrustGraphViewerProps) {
   useEffect(() => {
     if (!web5 || !myDid) return;
     //filter has changed, initiate new search
-    setSearching(true);
+    setSearching(true)
     setDocs(null);
     setEdges([]);
     setNodes([]);
@@ -111,57 +111,52 @@ export function TrustGraphViewer({ filter }: TrustGraphViewerProps) {
         setDocs((currentDocs) => (currentDocs ?? []).concat(newDocs));
       }
     }).then(() => {
+      // onSearchComplete()
       setSearching(false)
     });
   }, [web5, myDid, filter]);
 
-  const [active, setActive] = useState<{node: InternalGraphNode, props: CollapseProps | undefined} | null>(null);
+  const [active, setActive] = useState<{ node: InternalGraphNode, props: CollapseProps | undefined } | null>(null);
 
   const graphRef = useRef<GraphCanvasRef | null>(null);
-  // console.log(useSelection)
-  // const { selections, onNodeClick, onCanvasClick } = useSelection({
-  //   ref: graphRef,
-  //   nodes,
-  //   edges
-  // });
 
-  const activeNodeData = active?.node.data as {did: string, origin: string | undefined} | undefined
+  const activeNodeData = active?.node.data as { did: string, origin: string | undefined } | undefined
   return (
-    <div className="w-full h-100% flex-1 flex">
+    <div className="px-20 w-full h-100% flex-1 flex flex-col">
       {searching ? (
-        <p>
-          <Loader2 className="h-4 w-4 animate-spin" />
-          {!docs ? "searching..." : null}
+        <p className={'px-4 h-4 flex-none inline-flex items-center'}>
+          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          {nodes.length === 0 ? "searching..." : null}
         </p>
       ) : null}
-      {(!searching && (!docs || docs.length === 0)) ?  <p>no trust docs found</p> : null}
+      {(!searching && (nodes.length === 0)) ? <p className='px-4'>no trust docs found</p> : null}
 
       <div className='flex-1 relative'>
-        <div className="space-y-2" style={{
+        <div className="space-y-2 bg-accent" style={{
           zIndex: 9,
           position: 'absolute',
           top: 15,
           right: 15,
-          background: 'rgba(0, 0, 0, .5)',
           padding: 10,
-          color: 'white',
           width: '240px'
         }}>
           {activeNodeData ? (
             <>
-          <p className='text-sm font-semibold'>Origin</p>
-          {
-            activeNodeData.origin ? <a className='text-xs underline text-blue-600 hover:text-blue-800' href={activeNodeData.origin}>
-             {activeNodeData.origin}
-            </a> : <p className="text-xs font-muted">unknown</p>
-          }
-          <p className='text-sm font-semibold'>Did</p>
-            <p className='text-xs break-words overflow-scroll max-h-32'>
-              {activeNodeData.did}
-            </p>
-          </>
-            ) : <p className='text-sm font-muted font-semibold'>
-            None Selected
+              <p className='text-sm font-semibold'>Origin</p>
+              {
+                activeNodeData.origin ?
+                  <a className='text-xs underline text-blue-600 hover:text-blue-800' href={activeNodeData.origin}>
+                    {activeNodeData.origin}
+                  </a> : <p className="text-xs font-muted">unknown</p>
+              }
+              <p className='text-sm font-semibold'>Did</p>
+              <p
+                className='text-xs break-words overflow-y-scroll scrollbar-w-[5px] scrollbar scrollbar-thumb-primary/80 scrollbar-track-accent/50 scrollbar-thumb-rounded-full max-h-36'>
+                {activeNodeData.did}
+              </p>
+            </>
+          ) : <p className='text-sm font-muted font-semibold'>
+            No node selected
           </p>
           }
         </div>
@@ -182,34 +177,36 @@ export function TrustGraphViewer({ filter }: TrustGraphViewerProps) {
           renderNode={({
                          node,
                          ...rest
-                       }) => <Jdenticon {...rest} node={node} value={node.id} />
+                       }) => <Jdenticon {...rest} node={node} value={node.id}/>
           }
 
         />
       </div>
     </div>
   );
-}
+})
 
 type Filter = ValidFilter | { type: "unknown"; value: string };
 
 function parseFilter(filter: string): Filter {
   if (filter.startsWith("did")) {
-    return { type: "did", value: filter };
+    return {type: "did", value: filter};
   }
-  return { type: "unknown", value: filter };
+  return {type: "unknown", value: filter};
 }
 
 const UNKNOWN_FILTER_ERR = "expected did";
 
 function FilterForm({
-  className,
-  initialValue,
-  onFilterSubmitted,
-}: {
+                      className,
+                      initialValue,
+                      onFilterSubmitted,
+                      children
+                    }: {
   className?: string;
   initialValue: Filter | undefined;
   onFilterSubmitted: (filter: ValidFilter) => void;
+  children?: React.ReactNode
 }) {
   const [error, setError] = useState<string | null>(
     initialValue?.type === "unknown" ? UNKNOWN_FILTER_ERR : null,
@@ -217,7 +214,7 @@ function FilterForm({
 
   return (
     <form
-      className={cn("space-y-2", className)}
+      className={cn("space-y-4 p-4 rounded-md", className)}
       onSubmit={(e) => {
         // Prevent the browser from reloading the page
         e.preventDefault();
@@ -239,12 +236,15 @@ function FilterForm({
         className="text-xs"
         defaultValue={initialValue?.value}
         name="filter"
-        placeholder="did or origin"
+        placeholder="did"
       />
-      <Button size="sm" type="submit">
-        Submit
-      </Button>
-      {error ? <label className="ml-3">{error}</label> : null}
+      <div className=''>
+        <Button size="sm" type="submit">
+          Submit
+        </Button>
+        {error ? <label className="ml-3">{error}</label> : null}
+        {children}
+      </div>
     </form>
   );
 }
@@ -267,10 +267,10 @@ export function Jdenticon({
 
   return (
     <SphereWithIcon
-        {...rest}
-        color="ghostwhite"
-        image={hmm}
-        node={node}
-      />
+      {...rest}
+      color="ghostwhite"
+      image={hmm}
+      node={node}
+    />
   );
 }
