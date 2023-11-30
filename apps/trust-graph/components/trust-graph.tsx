@@ -132,7 +132,7 @@ const TrustGraphViewer = memo(function TrustGraphViewer({filter}: TrustGraphView
       {(!searching && (nodes.length === 0)) ? <p className='px-4'>no trust docs found</p> : null}
 
       <div className='flex-1 relative'>
-        <div className="space-y-2 bg-accent" style={{
+        <div className="space-y-2 bg-accent/90" style={{
           zIndex: 9,
           position: 'absolute',
           top: 15,
@@ -151,7 +151,7 @@ const TrustGraphViewer = memo(function TrustGraphViewer({filter}: TrustGraphView
               }
               <p className='text-sm font-semibold'>Did</p>
               <p
-                className='text-xs break-words overflow-y-scroll scrollbar-w-[5px] scrollbar scrollbar-thumb-primary/80 scrollbar-track-accent/50 scrollbar-thumb-rounded-full max-h-36'>
+                className='text-xs break-words overflow-y-scroll max-h-36'>
                 {activeNodeData.did}
               </p>
             </>
