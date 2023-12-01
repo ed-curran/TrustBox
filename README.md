@@ -14,7 +14,7 @@ This repository also contains:
 
 
 
-To learn more, watch the [HombuyingUK demo video](https://youtu.be/jRI1J16QFDQ), and try it out for [yourself](https://trust-sight-ddiatf.vercel.app/). Or stick around for the story. If you're only interested in the tech and standards, skip to [here](#the-technology).
+To learn more, watch the [HombuyingUK demo video](https://youtu.be/jRI1J16QFDQ), and try it out for [yourself](https://trust-uk.vercel.app/). Or stick around for the story. If you're only interested in the tech and standards, skip to [here](#the-technology).
 
 ## The Story
 
