@@ -1,64 +1,15 @@
-# Demo Property Data Trust Framework (DPDTF)
+# Trust Graph
 
-This is a simple demonstration site playing the role of a trust framework author, and a scheme within the [DDIATF](../docs/README.md). 
-Specifically, this trust framework is modeled after the [Property Data Trust Framework](https://propdata.org.uk/) (PDTF)
-created by the [Home Buying and Selling Group](https://homebuyingandsellinggroup.co.uk/), and now managed by the [Open Property Data Association ](https://openpropdata.org.uk/).
-The PDTF seeks to enable people and organisation within the UK to exchange trustworthy property data more easily. 
-Its significant contribution currently is the publication of [data schemas](https://github.com/Property-Data-Trust-Framework/schemas) describing standardised property data.
+Trust graph visualises trust establishment documents that have been deployed to a decentralised web node. Try it out [here](https://trust-graph.vercel.app/?filter=did%3Aion%3AEiBDZeCzE-9GLasp8I4Mwn3q_q62b6cpM0oc7M1L37Y_lg%3AeyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJkd24tc2lnIiwicHVibGljS2V5SndrIjp7ImNydiI6IkVkMjU1MTkiLCJrdHkiOiJPS1AiLCJ4Ijoiak5fa0VjTDlaaFZoQy1WVGtrUTlhQzA2N1UzNnMwcElHTFVkd3ZvT2pyUSJ9LCJwdXJwb3NlcyI6WyJhdXRoZW50aWNhdGlvbiJdLCJ0eXBlIjoiSnNvbldlYktleTIwMjAifSx7ImlkIjoiZHduLWVuYyIsInB1YmxpY0tleUp3ayI6eyJjcnYiOiJzZWNwMjU2azEiLCJrdHkiOiJFQyIsIngiOiJlcmpXWE9saDVobTBZaXNneVZXOHZEYUZTSWtOTFBjVDJHUU1oRDkxdFB3IiwieSI6IjE3aVpMbEYzRjhlbFU5N0VXOUpHNllxcW1hRjVWOFNOTTdINnJtRS0wQXMifSwicHVycG9zZXMiOlsia2V5QWdyZWVtZW50Il0sInR5cGUiOiJKc29uV2ViS2V5MjAyMCJ9XSwic2VydmljZXMiOlt7ImlkIjoiZHduIiwic2VydmljZUVuZHBvaW50Ijp7ImVuY3J5cHRpb25LZXlzIjpbIiNkd24tZW5jIl0sIm5vZGVzIjpbImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduMyIsImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduNiJdLCJzaWduaW5nS2V5cyI6WyIjZHduLXNpZyJdfSwidHlwZSI6IkRlY2VudHJhbGl6ZWRXZWJOb2RlIn0seyJpZCI6ImRvbWFpbiIsInNlcnZpY2VFbmRwb2ludCI6Imh0dHBzOi8vdHJ1c3QtdWsudmVyY2VsLmFwcCIsInR5cGUiOiJMaW5rZWREb21haW5zIn1dfX1dLCJ1cGRhdGVDb21taXRtZW50IjoiRWlEZjNRaGt2cHZhV2Z2YnB1LXlaR2NZb0NlSE8weFB6cng0cmVQYUtRTWpudyJ9LCJzdWZmaXhEYXRhIjp7ImRlbHRhSGFzaCI6IkVpQnVxcS1XYkdKR0dKWlFFbHB5aHNqZ1BHXzhrSW5hYkhTSlZ3T1VOUENHNHciLCJyZWNvdmVyeUNvbW1pdG1lbnQiOiJFaUNCTWRuNDliMnI2eHcwQVBBdU5Xb0hISHg5N1VWLTlrWExaSzRUd25XZlF3In19).
 
-This demonstration aims to show how the PDTF might define which organisations
-are participating in the trust framework, including what their roles are, using a [trust establishment document](https://identity.foundation/trust-establishment/). 
-And crucially, how it can communicate that effectively to end users (generally buyers and sellers of properties).
-Additionally, it integrates with the [DDIATF](../docs/README.md) to demonstrate how the PDTF could be recognised as a scheme, 
-therefore providing it a measure of trustworthiness in the eyes of users. 
-This shows how trust can be "chained", or form a web of relationships.
+It works by searching for the trust establishment documents published by a root entity (identified by a did), 
+then traversing through any relationships it finds, building and visualising a graph as it goes.
 
-The demonstration site is intended to be used with [TrustSight](https://chromewebstore.google.com/detail/trustsight/gkodecajacijdbagcleeadfpbbdloblc), a chrome extension that gives users visibility
-of the trust information baked into the background of the site.
+Trust Graph will also attempt to resolve any linked domains by looking for endpoint descriptors in the did docs it resolves.
+If it finds a valid domain linked credential (can only verify VC-JWT at the moment) it will display the host for that origin.
 
-As usual, the trust backbone has been generated from a [trust model](../../packages/demo/README.md) using [TrustBench](../../packages/trustbench/README.md).
-The DPDTF site maps to the `dpdtf` entity in the model.
+In the future, will probably support trust establishment docs pubished to the web, either by crawling or by convention (or a mixture).
 
 
 
 
-
-
-## The Site
-
-The site is based on a free, MIT licensed template: https://github.com/naufaldi/next-landing-vpn
-the original license is included in this repo at: [LICENCE](LICENSE). I modified it to use the app router, and made the site simpler.
-
-
-
-
-This is a standard next-js app:
-
-### Getting Started
-
-First, run the development server:
-
-```bash
-pnpm dev
-```
-
-Open [http://localhost:3001](http://localhost:3001) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-To create [API routes](https://nextjs.org/docs/app/building-your-application/routing/router-handlers) add an `api/` directory to the `app/` directory with a `route.ts` file. For individual endpoints, create a subfolder in the `api` directory, like `api/hello/route.ts` would map to [http://localhost:3001/api/hello](http://localhost:3001/api/hello).
-
-### Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn/foundations/about-nextjs) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-### Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_source=github.com&utm_medium=referral&utm_campaign=turborepo-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
