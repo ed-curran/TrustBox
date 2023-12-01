@@ -2,16 +2,15 @@
 TrustBox is a suite of tools to build and utilise trust infrastructure for [application ecosystems](https://trustoverip.org/toip-model/). 
 It targets open standards that bridge the web with digital identity. Currently, it consists of:
 
+**TrustSight** - A trust overlay for your browser. It helps web users figure out if they can trust a website. Currently, this is a separate [repository](https://github.com/ed-curran/TrustSight).
 
 [**TrustBench**](packages/trustbench/README.md) - A developer tool for building and publishing trust infrastructure such as trust frameworks, and the pieces need to participate in a trust framework.
-
-**TrustSight** - A trust overlay for your browser. It helps web users figure out if they can trust a website. Currently, this is a separate [repository](https://github.com/ed-curran/TrustSight).
 
 **[TrustGraph](apps/docs/README.md)** - A visualizer for trust relationships. It can be used by both builders and users to understand trust within an ecosystem.
 
 This repository also contains:
 
-**[The HomebuyingUK Demo](#the-homebuyinguk-demo)** - A demonstrative trust framework for the home buying and selling industry, utilising [TrustBench]([TrustBench](packages/trustbench/README.md)), [TrustSight](https://github.com/ed-curran/TrustSight) and TrustGraph
+**[The HomebuyingUK Demo](#the-homebuyinguk-demo)** - A trust framework supported journey through the early steps of a property sale. Utilising TrustBench, TrustSight and TrustGraph
 
 
 
