@@ -1,5 +1,16 @@
 # TrustBench
 
+TrustBench helps you build and publish trust infrastructure such as trust frameworks, and the pieces need to participate in a trust framework.
+
+You can
+* Describe your infrastructure as a model, which can consist of multiple entities.
+* Build that model for different environments by providing environment specific values (e.g. origins and dids)
+* Have trustbench handle generating identifiers like DIDs, and signing VCs for entities you own (`veramo` and `web5` are supported). 
+TrustBench will remember identifiers between builds.
+* Publish your infrastructure with multiple strategies (currently `filesystem` suitable for hosting on webservers, and DWN)
+
+
+## Motivation
 The HomebuyingUK demo consists of 3 entities, 2 of which publish trust establishment docs, 
 all of which need did configuration docs. 
 These resources have to reference each others dids, and reference their own topic schemas.
@@ -8,14 +19,7 @@ Especially when you have multiple environments in which the references are diffe
 (e.g. different URLs and DIDs in dev vs prod).
 And that's not even talking about actually creating the DIDs, and signing credentials. 
 
-I created this tool to solve that problem for myself. But I think it would be useful for others too. 
-
-It supports using veramo or web5.js under the hood. It will default to veramo. To publish to a DWN, the `publishWithWeb5` config must be used. 
-In which case web.js  will be used.
-
-Warning: its rather janky, especially the lockfile behaviour.
-But it generally works and its pretty cool
-
+I created this tool to solve that problem for myself. But I think it would be useful for others too.
 
 ## Hypothesis
 We should be able to construct a model that describes a setup of entities and trust resources such as the one described above. 
@@ -64,7 +68,7 @@ A model is filesystem based.
 - A **symbol** is something that's used as an input to construct the output trust resources. There is not necessarily a one-to-one mapping between an input symbol and an output resource.
 Sometimes there is, sometimes multiple symbols are used to construct a single output resource.
 - A symbol is represented by a file. The filename is important, it looks like `"{symbolName}.{symbolType}.{extension}"`
-- An entity controls the "symbols" placed inside of it (the directory). The directory structure *inside* an entity is not significant (you can organise symbols how you want).
+- An entity controls the symbols placed inside of it (the directory). The directory structure *inside* an entity is not significant (you can organise symbols how you want).
 - Currently, these symbols are supported (I need to create a JSON schema for each of these):
   - **topic** - JSON schema representing a topic, as used by a trust establishment document.
   - **subject** - The subject of trust assertions made by the controlling entity, as in a trust establishment document. Trust assertions are scoped to a topic. 
@@ -138,27 +142,55 @@ Unfortunately this behavour is super janky right now, so if something isn't buil
 
 (yes i need to keep all this stuff more organised, todo: have a `.{environmentName}` dir and put all the lock and persistence stuff in there)
 
-### Key Management
+### SSI Provider
+An SSI provider handles DIDs, VCs and keys. Currently two ssi providers are supported:
 
-TrustBench will default to using Veramo for managing keys, creating dids, signing credentials etc. 
-Veramo managed keys are stored in an sqlite database written to whatever directory you ran `build` from. 
-The db file looks like `{environmentName}.sqlite`
+**Veramo** (default)
 
-if `publishWithWeb5` is set to true, web5 will be used instead of veramo. web5 will put its data in the `web5data-{environmentName}` directory (relative to where you ran `build`)
+* Will default to `did:key` for TrustBench generated DIDs (should be congfigurable but isn't yet)
+* Can issue JSON-LD and JWT credentials (i.e. for domain linked credentials)
+* Store its data (including key vault) in an sqlite database `{environmentName}.sqlite`. written to whatever directory you ran `build` from.
+
+
+
+**Web5** (when `publishWithWeb5` is true)
+
+* Will default to `did:ion` for TrustBench generated DIDs (should be congfigurable but isn't yet)
+* Can only issue JWT credentials.
+* Stores its data (including key vault) in the `web5data-{environmentName}` directory (relative to where you ran `build`)
+
+
+There was a period where both were used at the same time, it was rather painful. I realised I could get web5 to do everything that was needed right now.
+In the future there may still be a need to use more than one at once (will web5 support VC-JSON-LD?), which to do probably requires them all using a shared KMS.
 
 ### Kms Secret Key
-A kms secret key must be set to encrypt the keys (as above) with. This can be included in the environment file directly which is fine for things like dev.
+A kms secret key must be set to encrypt the keys (as above) with. This can be included in the environment file directly using the `kmsSecretKey` property, which is fine for things like dev.
 Or it can set using the environment variable `TRUSTBENCH_KMS_SECRET_KEY`. The environment file value will take precedence over the environment variable if both are present.
 
+
+### Publisher
+TrustBench currently supports two publishing strategies.
+* filesystem (used to host on a webserver)
+* DWN (when  `publishWithWeb5` is true)
+
+When publishing to a DWN is enabled, the `web5` ssi provider will be used (this will happen automatically).
+This means that enabling DWN for a project already built without it will get TrustBench confused.
+ATM you need to delete the lock, and have all new identifiers generated.
+
 ### Usage
-Currently, trust bench exports a single function:
+Currently, trust bench exports two functions:
 ```
 build(environmentName: string, modelDir: string = './model')
 ```
 It accepts an environment name, and an optional path to the model directory, which defaults to "./model".
 This can be used in conjunction with environment files to build your trust setup for different environments.
 
-You must write a js or ts file to call `build` yourself, yes this annoying, yes there should be a cli.  
+```
+init(environmentName?: string, templatePath?: string)
+```
+will write a new environment file, from an optional template, with a freshly generated kmsSecretKey.
+
+You must write a js or ts file to call these yourself, yes this annoying, yes there should be a cli.  
 
 //todo
 
@@ -206,29 +238,9 @@ This doesn't feel great but I could probably live with that. There's still a cou
 * How to ensure the resources that get published to the `additionalOutDir` do not get committed / pushed?. Intuitively these shouldn't get committed because they can be `built`. You can't `.gitignore` the whole  `additionalOutDir` like you would `node_modules`. 
 
 
-Either, have TrustBench store past 2 publishes. And before pushing a change you don't run `build` instead you run something 
-like `freeze` which cleans up the state of your local `additionalOutDir`, constructs the lockfile but doesn't write to `additionalOutDir`.
+Before pushing a change you don't run `build` instead you run something 
+like `clean {your-local-env}` which cleans up the state of your local `additionalOutDir` and then `freeze {your-prod-env}` constructs the lockfile but doesn't write any output resources. It would 
+keep the publish history for this freeze run and the previous run.
 
 Or, i rethink this package manager style approach. Maybe there's an approach like db migrations. 
 Maybe there's an approach like DB branching.
-
-### SSI Provider
-An SSI provider does stuff like generate dids, manage keys, create and sign credentials.
-
-TrustBench currently supports two "ssi providers"
-
-* `veramo` is the default
-* `web5` is used when `publishWithWeb5` is true
-
-There was a period where both were used at the same time, it was rather painful. I realised I could get web5 to do everything that was needed right now.
-In the future there may still be a need to use more than one at once (will web5 support VC-JSON-LD?), which to do probably requires them all using a shared KMS.
-
-
-### Publisher
-TrustBench currently supports two publishing strategies. 
-* filesystem (used to host on a webserver)
-* DWN
-
-To publish with DWN, the `web5` ssi provider must be used (this will happen automatically). 
-This means that enabling DWN publishing with `publishWithWeb5` for a project already built without it will get TrustBench confused.
-ATM you need to delete the lock, and have all new identifiers generated.

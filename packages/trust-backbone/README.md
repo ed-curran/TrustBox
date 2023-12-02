@@ -8,20 +8,21 @@ of the appropriate demo site (in /apps)
 
 The trust backbone consists of these entities:
 
-`ddsit` (hosted at [Demo Digital Identity and Attributes Trust Framework](../../apps/docs/README.md))
+`ddsit` (aka [TrustUK](../../apps/ddiatf/README.md))
 - a did configuration
 - a trust establishment doc with 
   - one topic ("scheme-operator")
-  - assertions about DDIATF using this topic
+  - assertions about dpdtf using this topic
 
-`dpdtf` (hosted at [Demo Property Data Trust Framework](../../apps/web/README.md))
+`dpdtf` (aka [HomebuyingUK](../../apps/dpdtf/README.md))
 
 - a did configuration
 - a trust establishment doc with 
   - two topics ("pdtf-participant" and "pdtf-issuer")
-  - assertions referencing the DEA using these topics
+  - assertions referencing PropertyPrepper using these topics, 
+  also assertions referencing dif to show how you can reference external entities.
 
-`demo-property-pack-provider` (maps to Demo Estate Agent)
+`property-prepper` (aka [PropertyPrepper](../../apps/property-prepper/README.md))
 - a did configuration
 
 ## Setup
