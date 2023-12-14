@@ -1,5 +1,5 @@
 {
-  "$id": "https://trust-uk.vercel.app/diaatf-scheme-author.json",
+  "$id": "http://localhost:3002/diaatf-scheme-author.json",
   "$schema": "https://json-schema.org/draft/2019-09/schema",
   "title": "Scheme operator within TrustUK",
   "type": "object",

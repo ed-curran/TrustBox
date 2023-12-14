@@ -1,5 +1,5 @@
 {
-  "$id": "https://homebuying-uk.vercel.app/topics/dpdtf-participant.json",
+  "$id": "http://localhost:3001/topics/dpdtf-participant.json",
   "$schema": "https://json-schema.org/draft/2019-09/schema",
   "title": "Member of HomebuyingUK",
   "type": "object",

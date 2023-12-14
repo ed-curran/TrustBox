@@ -62,15 +62,30 @@ export const createWeb5 = async (
   name: string = 'default',
   linkedDomain: string | undefined,
 ) => {
-  const { Web5, getTechPreviewDwnEndpoints } = await import('@web5/api');
+  const { Web5 } = await import('@web5/api');
   const { DidIonMethod } = await import('@web5/dids');
 
   //todo update this when dwn endpoints are done properly
 
-  //because we're publishing we need a did doc with service endpoints set
-  //which I think means we can't use did key
-  //which means i don't know how we're going to get veramo and web5 to use same did
-  const serviceEndpointNodes = await getTechPreviewDwnEndpoints();
+  //using our own hosted dwn
+  //this lets us freeze the version of the remote dwn to match our client
+  //which is useful because there's lots of breaking changes rn during pre v1
+  //really, this should be configurable by trustbench users
+  const trustboxEndpointNodes = [
+    'https://trustbox-dwn-production.up.railway.app',
+  ];
+  const serviceEndpointNodes = new Array<string>();
+  for (const endpoint of trustboxEndpointNodes) {
+    try {
+      const healthCheck = await fetch(`${endpoint}/health`);
+      if (healthCheck.ok) {
+        serviceEndpointNodes.push(endpoint);
+      }
+    } catch (error: unknown) {
+      // Ignore healthcheck failures and try the next node.
+    }
+  }
+
   // Generate ION DID service and key set.
   const didOptions = await DidIonMethod.generateDwnOptions({
     serviceEndpointNodes,

@@ -1,5 +1,5 @@
 {
-  "$id": "https://homebuying-uk.vercel.app/topics/dpdtf-issuer.json",
+  "$id": "http://localhost:3001/topics/dpdtf-issuer.json",
   "$schema": "https://json-schema.org/draft/2019-09/schema",
   "title": "Issuer of property data",
   "type": "object",
