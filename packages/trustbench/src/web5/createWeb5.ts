@@ -2,6 +2,13 @@
 import { webcrypto } from 'node:crypto';
 // @ts-expect-error hacky esm type import stuff
 import type { Web5ManagedAgent } from '@web5/agent';
+// @ts-expect-error hacky esm type import stuff
+import type { IdentityAgent } from '@web5/identity-agent';
+import type {
+  Web5,
+  // @ts-expect-error this will error because we shouldn't be importing an esm only package
+  // but since we just want the types, this actually works.
+} from '@web5/api';
 
 // @ts-expect-error web5.js need this when running in node
 if (!globalThis.crypto) globalThis.crypto = webcrypto;
@@ -12,10 +19,10 @@ function storeDirName(environmentName?: string) {
   return `${DEFAULT_STORE_DIR_NAME}-${environmentName}`;
 }
 //this returns a multitenant thing
-export const createWeb5Agent = async (
+export async function createWeb5Agent(
   kmsSecretKey: string,
   environmentName?: string,
-) => {
+): Promise<IdentityAgent> {
   //im using the "IdentityAgent" here instead of "UserAgent", currently they seem to be identical anyway.
   //I guessed that they intend to diverge and that IdentityAgent might be more suitable for me
   //but no idea really
@@ -52,16 +59,17 @@ export const createWeb5Agent = async (
   //make sure we use our kmsSecretKey loaded from the environment as passphrase
   await agent.start({ passphrase: kmsSecretKey });
   return agent;
-};
+}
 
 export type Web5Agent = Web5ManagedAgent;
+export type Web5Connection = { web5: Web5; did: string };
 //creates a new did/identity for the provided agent
 //and returns a single tenant thing scoped to that did
-export const createWeb5 = async (
+export async function createWeb5(
   agent: Web5Agent,
   name: string = 'default',
   linkedDomain: string | undefined,
-) => {
+): Promise<Web5Connection> {
   const { Web5 } = await import('@web5/api');
   const { DidIonMethod } = await import('@web5/dids');
 
@@ -116,10 +124,13 @@ export const createWeb5 = async (
     agent,
     connectedDid: identity.did,
   });
-};
+}
 
-export const getWeb5 = async (agent: Web5Agent, connectedDid: string) => {
+export async function getWeb5(
+  agent: Web5Agent,
+  connectedDid: string,
+): Promise<Web5Connection> {
   //this gets called somewhat frequently so its annoying we do an import here
   const { Web5 } = await import('@web5/api');
   return Web5.connect({ agent, connectedDid });
-};
+}

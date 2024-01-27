@@ -43,7 +43,11 @@ function databaseFileName(environmentName?: string) {
 export type VeramoAgent = TAgent<
   IDIDManager & IKeyManager & IDataStore & IDataStoreORM & ICredentialPlugin
 >;
-export const createVeramoAgent = async (kmsSecretKey: string, environmentName?: string, ) => {
+
+export async function createVeramoAgent(
+  kmsSecretKey: string,
+  environmentName?: string,
+): Promise<VeramoAgent> {
   const { createAgent } = await import('@veramo/core');
 
   const { DIDManager } = await import('@veramo/did-manager');
@@ -85,7 +89,7 @@ export const createVeramoAgent = async (kmsSecretKey: string, environmentName?: 
         store: new KeyStore(dbConnection),
         kms: {
           local: new KeyManagementSystem(
-            new PrivateKeyStore(dbConnection, new SecretBox(kmsSecretKey))
+            new PrivateKeyStore(dbConnection, new SecretBox(kmsSecretKey)),
           ),
         },
       }),
@@ -125,4 +129,4 @@ export const createVeramoAgent = async (kmsSecretKey: string, environmentName?: 
       }),
     ],
   });
-};
+}

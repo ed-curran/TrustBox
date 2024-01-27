@@ -11,7 +11,7 @@
   "devDependencies": {
     "@types/node": "^20.9.0",
     "@veramo/kms-local": "^5.5.3",
-    "trust-bench": "latest"
+    "trustbench": "latest"
   },
   "dependencies": {
     "@web5/api": "^0.8.2",
