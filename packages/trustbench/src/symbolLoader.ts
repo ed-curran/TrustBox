@@ -1,5 +1,5 @@
 import {
-  Symbol,
+  ModelSymbol,
   SymbolMetadata,
   SymbolTag,
   Named,
@@ -8,14 +8,14 @@ import {
   Subject,
   TrustEstablishmentDoc,
   Optional,
-} from './symbol';
+} from './modelSymbol';
 import { FsEntry, FsReadDeps, PathDeps } from './fsDeps';
 
 function toRelativePath(
   name: string,
   namespace: readonly string[],
   type: string,
-  extension: string
+  extension: string,
 ) {
   const symbolDir = namespace.join('/');
   const fileName = `${name}.${type}.${extension}`;
@@ -29,10 +29,11 @@ export type LoadedEntity = {
   };
   symbols: NamedSymbol[];
 };
+
 export async function loadEntities(
   dir: string,
   fs: FsReadDeps,
-  path: PathDeps
+  path: PathDeps,
 ): Promise<LoadedEntity[]> {
   const directories = await scanDirectoryForDirectories(dir, fs, path);
   const entities = directories.map(async (dir) => {
@@ -48,7 +49,7 @@ export async function loadEntities(
 export async function loadSymbols(
   dir: string,
   fs: FsReadDeps,
-  path: PathDeps
+  path: PathDeps,
 ): Promise<NamedSymbol[]> {
   const files = await walkDir(dir, fs, path);
   const readFile = (path: string) =>
@@ -56,7 +57,7 @@ export async function loadSymbols(
 
   //type inference is struggling
   const maybeSymbols: (NamedSymbol | undefined)[] = await Promise.all(
-    files.map((file) => toSymbol(file, readFile))
+    files.map((file) => toSymbol(file, readFile)),
   );
 
   return maybeSymbols.flatMap((symbol) => symbol ?? []);
@@ -64,13 +65,15 @@ export async function loadSymbols(
 
 async function toSymbol(
   entry: FsEntry,
-  fileReader: (path: string) => Promise<string>
+  fileReader: (path: string) => Promise<string>,
 ): Promise<NamedSymbol | undefined> {
   const parts = entry.name.split('.');
   const symbolType = parts[parts.length - 2];
+  const symbolExtension = parts[parts.length - 1];
   const name = parts[0] as string | undefined;
   if (!name) return undefined;
   if (!symbolType) return undefined;
+  if (!symbolExtension) return undefined;
 
   const symbolTag = classifyFile(symbolType);
   if (!symbolTag) return undefined;
@@ -81,17 +84,19 @@ async function toSymbol(
   //we could get the path from the actual filesystem path
   //but instead we derive it from the symbol to be consistent,
   // the idea is we should be doing it this way everywhere
-  const serde = symbolSerde({ type: symbolTag });
+  const serde = symbolSerde({ type: symbolTag }, symbolExtension);
   const namespace = Array.from(entry.parents);
   //we actually rarely use path itself, instead preferring to derive it
   //maybe we should just not store it in metadata
   const path = toRelativePath(name, namespace, serde.type, serde.extension);
-  const metadata = {
+
+  const result = await serde.deserialize(contents, {
     name,
     path,
     namespace,
-  };
-  const result = await serde.deserialize(contents, metadata);
+    extension: serde.extension,
+    raw: contents,
+  });
   if (result.status === 'failure') return undefined;
   return result.value;
 }
@@ -108,8 +113,8 @@ type SymbolSerde = {
   type: string;
   deserialize: (
     contents: string,
-    metadata: SymbolMetadata
-  ) => Promise<Result<Named<Symbol>>>;
+    metadata: SymbolMetadata,
+  ) => Promise<Result<Named<ModelSymbol>>>;
   serialize: () => Promise<Result<string>>;
 };
 
@@ -123,7 +128,7 @@ const removeUndefineds = <T extends Record<string, any>>(obj: T): T => {
   return obj;
 };
 
-function classifyFile(symbolType: string): SymbolTag | undefined {
+export function classifyFile(symbolType: string): SymbolTag | undefined {
   switch (symbolType) {
     case 'topic':
       return 'Topic';
@@ -131,12 +136,56 @@ function classifyFile(symbolType: string): SymbolTag | undefined {
       return 'TrustEstablishmentDoc';
     case 'subject':
       return 'Subject';
+    case 'credschema':
+      return 'CredentialSchema';
+    case 'template':
+      return 'Template';
     default:
       return undefined;
   }
 }
 
-export function symbolSerde(symbol: Optional<Symbol, 'value'>): SymbolSerde {
+export function classifySymbol(symbolTag: SymbolTag) {
+  //todo: do json schema validation
+  switch (symbolTag) {
+    case 'TrustEstablishmentDoc': {
+      return {
+        extension: 'json',
+        type: 'trustestablishment',
+      };
+    }
+    case 'Topic': {
+      return {
+        extension: 'json',
+        type: 'topic',
+      };
+    }
+    case 'CredentialSchema': {
+      return {
+        extension: 'json',
+        type: 'credschema',
+      };
+    }
+    case 'Subject': {
+      return {
+        extension: 'json',
+        type: 'subject',
+      };
+    }
+    case 'Template': {
+      return {
+        extension: '',
+        type: 'template',
+      };
+    }
+  }
+}
+
+//need to sort out how we're dealing with file extensions
+export function symbolSerde(
+  symbol: Optional<ModelSymbol, 'value'>,
+  extension?: string,
+): SymbolSerde {
   //todo: do json schema validation
   switch (symbol.type) {
     case 'TrustEstablishmentDoc': {
@@ -187,6 +236,30 @@ export function symbolSerde(symbol: Optional<Symbol, 'value'>): SymbolSerde {
         },
       };
     }
+    case 'CredentialSchema': {
+      return {
+        extension: 'json',
+        type: 'credschema',
+        deserialize: async (contents, metadata) => {
+          const topic = JSON.parse(contents) as Topic;
+          return {
+            status: 'success',
+            value: {
+              type: 'CredentialSchema',
+              value: topic,
+              metadata,
+            },
+          } as const;
+        },
+        serialize: async () => {
+          const contents = JSON.stringify(symbol.value, null, 2);
+          return {
+            status: 'success',
+            value: contents,
+          } as const;
+        },
+      };
+    }
     case 'Subject': {
       return {
         extension: 'json',
@@ -211,6 +284,28 @@ export function symbolSerde(symbol: Optional<Symbol, 'value'>): SymbolSerde {
         },
       };
     }
+    case 'Template': {
+      return {
+        extension: extension ?? '',
+        type: 'template',
+        deserialize: async (contents, metadata) => {
+          return {
+            status: 'success',
+            value: {
+              type: 'Template',
+              value: contents,
+              metadata,
+            },
+          } as const;
+        },
+        serialize: async () => {
+          return {
+            status: 'success',
+            value: symbol.value as string, //gross - the typing of this whole function needs fixed
+          } as const;
+        },
+      };
+    }
   }
 }
 
@@ -218,7 +313,7 @@ async function scanDirectoryForDirectories(
   dir: string,
   fsPromises: FsReadDeps,
   path: PathDeps,
-  parents: string[] = []
+  parents: string[] = [],
 ): Promise<FsEntry[]> {
   const files = await fsPromises.readdir(dir);
   const dirPaths = files.map(async (name): Promise<FsEntry | undefined> => {
@@ -242,7 +337,7 @@ async function walkDir(
   dir: string,
   fsPromises: FsReadDeps,
   path: PathDeps,
-  parents: string[] = []
+  parents: string[] = [],
 ): Promise<FsEntry[]> {
   const files = await fsPromises.readdir(dir);
   const dirPaths = files.map(async (name): Promise<FsEntry[]> => {

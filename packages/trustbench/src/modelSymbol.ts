@@ -1,4 +1,4 @@
-import { JsonSchema } from 'trustlib';
+import { JsonSchema } from './trustlib';
 
 export interface Entity {}
 
@@ -23,6 +23,12 @@ export type TrustEstablishmentDocSymbol = {
   value: TrustEstablishmentDoc;
 };
 
+export type CredentialSchema = JsonSchema;
+export type CredentialSchemaSymbol = {
+  type: 'CredentialSchema';
+  value: CredentialSchema;
+};
+
 //each key is a topic id and the value is a set of assertions (aka a json object) that apply this this subject
 export type Subject = Record<string, Record<string, unknown>>;
 
@@ -31,9 +37,19 @@ export type SubjectSymbol = {
   value: Subject;
 };
 
-export type Symbol = TopicSymbol | SubjectSymbol | TrustEstablishmentDocSymbol;
-export type NamedSymbol = Named<Symbol>;
-export type SymbolTag = Symbol['type'];
+export type TemplateSymbol = {
+  type: 'Template';
+  value: string;
+};
+
+export type ModelSymbol =
+  | TopicSymbol
+  | SubjectSymbol
+  | TrustEstablishmentDocSymbol
+  | CredentialSchemaSymbol
+  | TemplateSymbol;
+export type NamedSymbol = Named<ModelSymbol>;
+export type SymbolTag = ModelSymbol['type'];
 
 export type Named<T> = T & {
   metadata: SymbolMetadata;
@@ -43,6 +59,8 @@ export type SymbolMetadata = {
   readonly name: string;
   readonly namespace: readonly string[];
   readonly path: string;
+  readonly extension: string;
+  readonly raw: string; //the raw file data as utf8 string
 };
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;

@@ -1,4 +1,4 @@
-import TrustBench from "trust-bench";
+import TrustBench from "trustbench";
 import * as dotenv from "dotenv";
 dotenv.config({ debug: true });
 

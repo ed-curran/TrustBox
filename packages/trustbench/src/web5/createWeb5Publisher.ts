@@ -1,15 +1,8 @@
 import { Publisher } from '../publisher/publisher';
-import { getWeb5, Web5Agent } from './createWeb5';
+import { getWeb5, Web5Agent, Web5Connection } from './createWeb5';
 
-import type {
-  Web5,
-  // @ts-expect-error this will error because we shouldn't be importing an esm only package
-  // but since we just want the types, this actually works.
-} from '@web5/api';
-import { TrustEstablishmentDoc } from 'trustlib';
+import { TrustEstablishmentDoc } from '../trustlib';
 import * as console from 'console';
-
-type Web5Connection = { web5: Web5; did: string };
 
 async function publishDraftTrustDoc(
   { web5, did }: Web5Connection,

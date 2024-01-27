@@ -1,6 +1,5 @@
-import {Bundle, BundledEntity, EnvironmentLock} from '../bundler/bundler';
+import { Bundle, BundledEntity, EnvironmentLock } from '../bundler/bundler';
 import { FsWriteDeps, mkDirIfNotExists, PathDeps } from '../fsDeps';
-import path from 'path';
 
 //eventually we'll have the concept of a generic "Publisher", where this is a WebServer / Filesystem publisher
 //and can have others like DWNPublisher, Cheqd linked resource publisher etc
@@ -18,14 +17,14 @@ type WriteCommand = {
 };
 
 type EntityWriteCommand = {
-  additionalOutDir?: string
+  additionalOutDir?: string;
   entityDir: string;
   commands: WriteCommand[];
 
   //these are the write commands for the previous run
   //we can use them to clean up from the previous one
   //e.g. delete removed outputs
-  lockCommands: WriteCommand[]
+  lockCommands: WriteCommand[];
 };
 
 type BundleWriteCommand = {
@@ -41,9 +40,9 @@ type Deps = {
 async function write(
   command: WriteCommand,
   f: FsWriteDeps,
-  existingDirs = new Set<string>()
+  existingDirs = new Set<string>(),
 ) {
-  console.log({dir: command.dir, file: command.fileName, path: command.path})
+  console.log({ dir: command.dir, file: command.fileName, path: command.path });
   await mkDirIfNotExists(command.dir, f, existingDirs);
 
   return f
@@ -57,7 +56,7 @@ async function write(
       } as const;
     })
     .catch((reason: string) => {
-      console.log(reason)
+      console.log(reason);
       return {
         status: 'failure',
         message: `failed writing to file ${command.path} with error ${reason}`,
@@ -70,7 +69,7 @@ async function write(
 //or write completes but lock file write doesn't
 export async function writeBundle(
   command: BundleWriteCommand,
-  deps: Deps
+  deps: Deps,
 ): Promise<void> {
   await mkDirIfNotExists(command.bundleDir, deps.f, new Set());
   for (const entityWriteCommand of command.entityCommands) {
@@ -82,42 +81,56 @@ export async function writeBundle(
     }
     const existingDirs = new Set<string>();
     await mkDirIfNotExists(entityWriteCommand.entityDir, deps.f, existingDirs);
-    await writeEntity(entityWriteCommand.entityDir, entityWriteCommand, deps, existingDirs)
+    await writeEntity(
+      entityWriteCommand.entityDir,
+      entityWriteCommand,
+      deps,
+      existingDirs,
+    );
 
     //copy to additional out dir
-    if(entityWriteCommand.additionalOutDir) {
-      await writeEntity(entityWriteCommand.additionalOutDir, entityWriteCommand, deps, new Set())
+    if (entityWriteCommand.additionalOutDir) {
+      await writeEntity(
+        entityWriteCommand.additionalOutDir,
+        entityWriteCommand,
+        deps,
+        new Set(),
+      );
     }
   }
 }
 
-export async function writeEntity(entityDir: string, entityWriteCommand: EntityWriteCommand, deps: Deps, existingDirs = new Set<string>()) {
-  const writes: WriteCommand[] = entityWriteCommand.commands.map(command => ({
+export async function writeEntity(
+  entityDir: string,
+  entityWriteCommand: EntityWriteCommand,
+  deps: Deps,
+  existingDirs = new Set<string>(),
+) {
+  const writes: WriteCommand[] = entityWriteCommand.commands.map((command) => ({
     dir: deps.path.join(entityDir, command.dir),
     path: deps.path.join(entityDir, command.path),
     value: command.value,
-    fileName: command.fileName
-  }))
+    fileName: command.fileName,
+  }));
 
   const results = await Promise.all(
-    writes.map((command) => write(command, deps.f, existingDirs)
-    )
+    writes.map((command) => write(command, deps.f, existingDirs)),
   );
 
-  const writtenFiles = new Set<string>()
+  const writtenFiles = new Set<string>();
   results.forEach((result) => {
     if (result.status === 'failure') {
       console.log(`warn: couldn't write symbol - ${result.message}`);
     } else {
-      writtenFiles.add(result.path)
+      writtenFiles.add(result.path);
     }
   });
 
-  entityWriteCommand.lockCommands.map(command => {
-    if(!writtenFiles.has(command.path)) {
-      deps.f.rm(command.path)
+  entityWriteCommand.lockCommands.map((command) => {
+    if (!writtenFiles.has(command.path)) {
+      deps.f.rm(command.path);
     }
-  })
+  });
 }
 //todo delete stale outputs
 //probably calculate the disjoint and turn it into DeleteCommands
@@ -126,9 +139,9 @@ export function bundleToWriteCommand(
   dir: string,
   bundle: Bundle,
   environmentLock: EnvironmentLock | undefined,
-  path: PathDeps
+  path: PathDeps,
 ): BundleWriteCommand {
-   //const lockEntityMap = new Map(environmentLock.bundle.entities.map(entity => ([entity.name, entity])))
+  //const lockEntityMap = new Map(environmentLock.bundle.entities.map(entity => ([entity.name, entity])))
   return {
     bundleDir: dir,
     entityCommands: bundle.entities.map((entity) => {
@@ -138,7 +151,7 @@ export function bundleToWriteCommand(
         entityDir,
         commands: entityToCommands(entityDir, entity, path),
         lockCommands: [],
-        additionalOutDir: entity.additionalOutDir
+        additionalOutDir: entity.additionalOutDir,
       };
     }),
   };
@@ -147,7 +160,7 @@ export function bundleToWriteCommand(
 export function entityToCommands(
   entityDir: string,
   bundle: BundledEntity,
-  path: PathDeps
+  path: PathDeps,
 ): WriteCommand[] {
   return bundle.outputSymbols.map((symbol) => {
     const dir = path.join(...symbol.metadata.namespace);
@@ -155,8 +168,16 @@ export function entityToCommands(
     return {
       dir: dir,
       fileName: symbol.metadata.name,
-      path: path.join(dir, `${symbol.metadata.name}.json`),
-      value: JSON.stringify(symbol.value, null, 2), //pretty print
+      //todo not all outputs will be json
+      path: path.join(
+        dir,
+        `${symbol.metadata.name}.${symbol.metadata.extension}`,
+      ),
+      //todo: this should be using our symbolSerde
+      value:
+        typeof symbol.value === 'string'
+          ? symbol.value
+          : JSON.stringify(symbol.value, null, 2), //pretty print
     };
   });
 }

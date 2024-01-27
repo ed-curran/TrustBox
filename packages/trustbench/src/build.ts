@@ -7,7 +7,7 @@ import {
 import { loadEntities } from './symbolLoader';
 import { createVeramoAgent } from './veramo/createVeramoAgent';
 import { getVeramoProvider } from './veramo/veramoProvider';
-import { bundle, createContext } from './bundler/bundler';
+import { bundle, createContext, createEntityContext } from './bundler/bundler';
 import { FsReadDeps } from './fsDeps';
 import { nodeFsReadDeps, nodeFsWriteDeps, nodePathDeps } from './fsDepsNode';
 import * as fs from 'fs';
@@ -40,14 +40,24 @@ export async function init(environmentName?: string, templatePath?: string) {
     kmsSecretKey: await SecretBox.createSecretKey(),
     entities: {},
   };
+  const outPath = environmentPath(environmentName);
   await fsWriteDeps.writeFile(
-    environmentPath(environmentName),
+    outPath,
     JSON.stringify(environmentFile, null, 2),
   );
+  return outPath;
 }
 
-export async function build(environmentName: string, dir: string = 'model') {
-  const environment = await loadEnvironment(fsReadDeps, environmentName);
+export async function build(
+  environmentName: string,
+  dir: string = 'model',
+  kmsSecretKey?: string,
+) {
+  const environment = await loadEnvironment(
+    fsReadDeps,
+    environmentName,
+    kmsSecretKey,
+  );
   if (!environment) throw Error('got no environment');
 
   const loadedEntities = await loadEntities(dir, fsReadDeps, {
@@ -69,28 +79,36 @@ export async function build(environmentName: string, dir: string = 'model') {
         ),
       );
 
+  const entitiesWithContext = await Promise.all(
+    loadedEntities.map((loadedEntity) =>
+      createEntityContext(
+        loadedEntity,
+        environment.environment,
+        environment.environmentLock,
+        provider,
+      ),
+    ),
+  );
   const context = await createContext(
-    loadedEntities,
+    entitiesWithContext,
     environment.environment,
-    environment.environmentLock,
-    provider,
   );
   const result = await bundle(
-    loadedEntities,
-    context,
+    context.entities,
+    context.context,
     environment.environmentLock,
     provider,
   );
 
   //new lock
   const newLock = {
-    context: context,
+    context: context.context,
     bundle: result,
   };
 
   const fsPublisher = await createFilesystemPublisher(
     { f: fsWriteDeps, path: pathDeps },
-    `dist/${environmentName}`,
+    environmentName ? `dist/${environmentName}` : `dist/default`,
   );
   console.log('----------publishing to filesystem----------');
   await fsPublisher.publishBundle(result, environment.environmentLock);
