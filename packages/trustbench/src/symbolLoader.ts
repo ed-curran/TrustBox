@@ -8,6 +8,7 @@ import {
   Subject,
   TrustEstablishmentDoc,
   Optional,
+  TrustFramework,
 } from './modelSymbol';
 import { FsEntry, FsReadDeps, PathDeps } from './fsDeps';
 
@@ -140,6 +141,8 @@ export function classifyFile(symbolType: string): SymbolTag | undefined {
       return 'CredentialSchema';
     case 'template':
       return 'Template';
+    case 'tf':
+      return 'TrustFramework';
     default:
       return undefined;
   }
@@ -176,6 +179,12 @@ export function classifySymbol(symbolTag: SymbolTag) {
       return {
         extension: '',
         type: 'template',
+      };
+    }
+    case 'TrustFramework': {
+      return {
+        extension: 'json',
+        type: 'tf',
       };
     }
   }
@@ -302,6 +311,30 @@ export function symbolSerde(
           return {
             status: 'success',
             value: symbol.value as string, //gross - the typing of this whole function needs fixed
+          } as const;
+        },
+      };
+    }
+    case 'TrustFramework': {
+      return {
+        extension: 'json',
+        type: 'tf',
+        deserialize: async (contents, metadata) => {
+          const entity = JSON.parse(contents) as TrustFramework;
+          return {
+            status: 'success',
+            value: {
+              type: 'TrustFramework',
+              value: entity,
+              metadata,
+            },
+          } as const;
+        },
+        serialize: async () => {
+          const contents = JSON.stringify(symbol.value, null, 2);
+          return {
+            status: 'success',
+            value: contents,
           } as const;
         },
       };

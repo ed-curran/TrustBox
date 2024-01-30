@@ -25,14 +25,7 @@ import type {
   // @ts-expect-error this will error because we shouldn't be importing an esm only package
   // but since we just want the types, this actually works.
 } from '@veramo/core';
-
-// This will be the name for the local sqlite database for demo purposes
-const DATABASE_FILE = 'database.sqlite';
-
-function databaseFileName(environmentName?: string) {
-  if (!environmentName) return DATABASE_FILE;
-  return `${environmentName}.sqlite`;
-}
+import { databaseFileName } from './veramoConfig';
 
 //veramo is esm only, which is actually probably a good idea
 //but i don't want to commit to converting this whole codebase to esm yet

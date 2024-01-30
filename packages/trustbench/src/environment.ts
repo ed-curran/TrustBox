@@ -168,3 +168,27 @@ export async function saveEnvironmentLock(
     { encoding: 'utf-8' },
   );
 }
+
+export function statusPath() {
+  return `./trustbench-status.json`;
+}
+
+export type TurstBenchStatus = {
+  activeEnvironment: string;
+  kmsSecretKey: string;
+};
+
+export async function loadStatus(
+  fsReadDeps: FsReadDeps,
+): Promise<TurstBenchStatus | undefined> {
+  const statusFilePath = statusPath();
+
+  const statusContent: string | undefined = await fsReadDeps
+    .readFile(statusFilePath)
+    .catch(async (reason) => {
+      return undefined;
+    });
+
+  if (!statusContent) return undefined;
+  return JSON.parse(statusContent) as TurstBenchStatus;
+}

@@ -1,4 +1,7 @@
 import { Triple } from './trustTriple';
+import { trustEstablishmentDocSchema } from './generated/trustEstablishmentDoc';
+import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
 
 export type TrustEstablishmentDoc<T extends Entries = Entries> = {
   id: string;
@@ -14,13 +17,15 @@ export type TrustEstablishmentDoc<T extends Entries = Entries> = {
   publisherDid?: string;
 };
 
-export type Entries = Record<string, TopicEntry<Record<string, unknown>>>;
-export type TopicEntry<T extends Record<string, unknown>> = Record<
+export type Entries = Record<string, TopicEntry>;
+
+export type TopicEntry<T extends SubjectEntry = SubjectEntry> = Record<
   string,
-  SubjectEntry<T>
+  T
 >;
+
 export type SubjectEntry<
-  T extends Record<string, unknown> = Record<string, unknown>,
+  T extends Record<keyof any, any> = Record<keyof any, any>,
 > = T;
 
 //todo better handling of different json schema versions
@@ -108,4 +113,10 @@ export function summariseDoc(
       title: topicSchemas.get(topicId)?.title ?? topicId,
     })),
   };
+}
+
+export function validator() {
+  const ajv = new Ajv();
+  addFormats(ajv);
+  return ajv.compile<TrustEstablishmentDoc>(trustEstablishmentDocSchema);
 }

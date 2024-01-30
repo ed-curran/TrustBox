@@ -21,10 +21,20 @@ import {
   Context,
   EntityContext,
   EntityWithContext,
+  metadataDir,
+  metadataPath,
+  NamedContext,
   NamedSymbolWithContext,
   SymbolContextMetadata,
+  symbolPath,
+  TrustDocContext,
   withContext,
 } from './context';
+import { parseTrustFrameworkDoc } from '../trustlib/trustframework/trustFrameworkDoc';
+import { MemberOfPDTF } from '../trustlib/trustframework/generated/pdtfParticipant';
+import { CredentialsOfThePDTF } from '../trustlib/trustframework/generated/pdtfCredentials';
+
+type TfCredential = CredentialsOfThePDTF['credentials'][number];
 
 export type Environment = {
   name: string;
@@ -103,73 +113,15 @@ export async function bundleEntity(
   for (const symbol of entity.symbols) {
     switch (symbol.type) {
       case 'TrustEstablishmentDoc': {
-        const trustDocContext = symbol.context;
-
-        const resolvedTopics = symbol.value.topics.flatMap(
-          (relativeTopicId) => {
-            const topicContext = context.pool.get(
-              'Topic',
-              normaliseRef(entityName, relativeTopicId),
-            )?.context;
-
-            return topicContext
-              ? ([[relativeTopicId, topicContext]] as const)
-              : [];
-          },
+        const outputTrustDoc = constructTrustDoc(
+          context,
+          entityContext,
+          symbol,
         );
-        const validTopicMap = new Map<string, { id: string }>(resolvedTopics);
-
-        const entries: Entries = entityContext.subjects.reduce(
-          (agg: Entries, entitySubjectContext) => {
-            const subject = context.pool.get(
-              'Subject',
-              entitySubjectContext.ref,
-            );
-            if (!subject) {
-              //shouldn't happen
-              return agg;
-            }
-
-            const subjectDid = context.entities.get(subject.metadata.name)?.did;
-            if (!subjectDid) {
-              //shouldn't happen
-              return agg;
-            }
-
-            Object.entries(subject.value).forEach(([topicId, assertionSet]) => {
-              const topicContext = validTopicMap.get(topicId);
-              if (!topicContext) return;
-
-              const topic = agg[topicContext.id];
-              if (topic) {
-                topic[subjectDid] = assertionSet;
-              }
-            });
-
-            return agg;
-          },
-          Object.fromEntries(
-            resolvedTopics.map(
-              ([, topicContext]) => [topicContext.id, {}] as const,
-            ),
-          ),
-        );
-        const now = new Date();
-        const nowIso = now.toISOString();
-        //this version has already been bumped
-        const version = trustDocContext.version;
-        const doc: TrustEstablishmentDoc = {
-          id: trustDocContext.id,
-          author: entityContext.did,
-          version: version,
-          created: nowIso,
-          validFrom: nowIso,
-          entries: entries,
-        };
 
         agg.outputSymbols.push({
           type: symbol.type,
-          value: doc,
+          value: outputTrustDoc,
           metadata: symbol.metadata,
         });
         //ignore
@@ -216,18 +168,321 @@ export async function bundleEntity(
           metadata: symbol.metadata,
           value: symbol.value,
         });
+        break;
+      }
+      case 'TrustFramework': {
+        //trust framework symbol contains enough information to create a trust doc
+        //alternatively we could have spawned a separate TrustDoc context symbol when we constructed
+        //the context, but this way we don't have to deal with building dependencies in the right order.
+        const resolvedMemberTopic = context.pool.get(
+          'Topic',
+          normaliseRef(
+            entityContext.name,
+            symbol.value.trustEstablishmentDoc.memberTopic,
+          ),
+        )?.context;
+        if (!resolvedMemberTopic) {
+          console.log(
+            'could not resolve memberTopic in trustframework: ' +
+              symbol.metadata.path,
+          );
+          break;
+        }
+        const resolvedCredentialsTopic = context.pool.get(
+          'Topic',
+          normaliseRef(
+            entityContext.name,
+            symbol.value.trustEstablishmentDoc.credentialsTopic,
+          ),
+        )?.context;
+        if (!resolvedCredentialsTopic) {
+          console.log(
+            'could not resolve credentialsTopic in trustframework: ' +
+              symbol.metadata.path,
+          );
+          break;
+        }
+        const entryPoint = symbolPath(entityContext, symbol);
+        const indexMetadata = {
+          name: 'index',
+          raw: '',
+          path: symbol.metadata.namespace.join('/') + '/index.json',
+          namespace: symbol.metadata.namespace,
+          extension: 'json',
+          entityName: entityName,
+        };
+
+        const trustDocSymbol: NamedContext<TrustDocContext> = {
+          type: 'TrustEstablishmentDoc',
+          value: {
+            topics: [
+              symbol.value.trustEstablishmentDoc.credentialsTopic,
+              symbol.value.trustEstablishmentDoc.memberTopic,
+            ].concat(symbol.value.trustEstablishmentDoc.topics ?? []),
+          },
+          metadata: symbol.metadata,
+          context: symbol.context.trustDoc,
+        };
+
+        const outputTrustDoc = constructTrustDoc(
+          context,
+          entityContext,
+          trustDocSymbol,
+        );
+        const index = {
+          entryPoint,
+          self: metadataPath(entityContext, indexMetadata),
+          credentialsTopic: resolvedCredentialsTopic.id,
+          memberTopic: resolvedMemberTopic.id,
+        };
+        const result = parseTrustFrameworkDoc(outputTrustDoc, index);
+        if (result.status === 'failure') {
+          console.warn(
+            `trust doc in trust framework ${symbol.metadata.path} was not the right format: ${result.message}`,
+          );
+          break;
+        }
+        const trustFrameworkDoc = result.value;
+
+        //output the index
+        agg.outputSymbols.push({
+          type: 'Template',
+          value: index,
+          metadata: indexMetadata,
+        });
+
+        //output the trust doc
+        agg.outputSymbols.push({
+          type: 'TrustEstablishmentDoc',
+          value: outputTrustDoc,
+          metadata: symbol.metadata,
+        });
+        if (!symbol.value.staticApi) {
+          //output the index
+          agg.outputSymbols.push({
+            type: 'Template',
+            value: index,
+            metadata: indexMetadata,
+          });
+          break;
+        }
+
+        //write the static api
+        type ApiParticipantEntry = {
+          did: string;
+          member: MemberOfPDTF;
+        };
+        const participants = new Map<string, ApiParticipantEntry>();
+        type ApiCredentialSchemaEntry = {
+          tfCredentialSchema: TfCredential;
+        };
+        const credentialSchemas = new Map<string, ApiCredentialSchemaEntry>();
+        for (const tfCredentialSchema of trustFrameworkDoc.entries
+          .credentialsTopic.owner.credentials) {
+          credentialSchemas.set(tfCredentialSchema.type, {
+            tfCredentialSchema: tfCredentialSchema,
+          });
+        }
+
+        for (const participantDid in trustFrameworkDoc.entries.memberTopic) {
+          const memberAssertion =
+            trustFrameworkDoc.entries.memberTopic[participantDid]!;
+          participants.set(participantDid, {
+            did: participantDid,
+            member: memberAssertion,
+          });
+        }
+
+        const apiIndex: {
+          members: Record<string, ApiParticipantEntry>;
+          schemas: Record<string, ApiCredentialSchemaEntry>;
+        } = {
+          members: {},
+          schemas: {},
+        };
+
+        //apparently foreEach is fastest way to iterate over a map...
+        credentialSchemas.forEach((credentialSchemaEntry, type) => {
+          apiIndex.schemas[type] = credentialSchemaEntry;
+          if (
+            typeof symbol.value.staticApi === 'object' &&
+            symbol.value.staticApi.extensionlessEndpoints
+          ) {
+            agg.outputSymbols.push({
+              type: 'Template',
+              value: credentialSchemaEntry,
+              metadata: {
+                entityName: entityName,
+                extension: 'json',
+                name: 'index',
+                namespace: symbol.metadata.namespace.concat([
+                  'api',
+                  'schemas',
+                  type,
+                ]),
+                //ignored by writer, should clean up this type
+                path: '',
+                raw: '',
+              },
+            });
+          } else {
+            agg.outputSymbols.push({
+              type: 'Template',
+              value: credentialSchemaEntry,
+              metadata: {
+                entityName: entityName,
+                extension: 'json',
+                name: type,
+                namespace: symbol.metadata.namespace.concat(['api', 'schemas']),
+                //ignored by writer, should clean up this type
+                path: '',
+                raw: '',
+              },
+            });
+          }
+        });
+        participants.forEach((participantEntry, participantDid) => {
+          apiIndex.members[participantDid] = participantEntry;
+          if (
+            typeof symbol.value.staticApi === 'object' &&
+            symbol.value.staticApi.extensionlessEndpoints
+          ) {
+            agg.outputSymbols.push({
+              type: 'Template',
+              value: participantEntry,
+              metadata: {
+                entityName: entityName,
+                extension: 'json',
+                name: 'index',
+                namespace: symbol.metadata.namespace.concat([
+                  'api',
+                  'members',
+                  participantDid,
+                ]),
+                //ignored by writer, should clean up this type
+                path: '',
+                raw: '',
+              },
+            });
+          } else {
+            agg.outputSymbols.push({
+              type: 'Template',
+              value: participantEntry,
+              metadata: {
+                entityName: entityName,
+                extension: 'json',
+                name: participantDid,
+                namespace: symbol.metadata.namespace.concat(['api', 'members']),
+                //ignored by writer, should clean up this type
+                path: '',
+                raw: '',
+              },
+            });
+          }
+        });
+        const apiIndexMetadata = {
+          entityName: entityName,
+          extension: 'json',
+          name: 'index',
+          namespace: symbol.metadata.namespace.concat(['api']),
+          //ignored by writer, should clean up this type
+          path: '',
+          raw: '',
+        };
+        agg.outputSymbols.push({
+          type: 'Template',
+          value: apiIndex,
+          metadata: apiIndexMetadata,
+        });
+        //output the index with a pointer to api included in index
+        agg.outputSymbols.push({
+          type: 'Template',
+          value: {
+            ...index,
+            api: metadataDir(entityContext, apiIndexMetadata),
+          },
+          metadata: indexMetadata,
+        });
+        break;
       }
     }
   }
   return agg;
 }
 
+function constructTrustDoc(
+  context: Context,
+  entityContext: EntityContext,
+  symbol: NamedContext<TrustDocContext>,
+) {
+  const trustDocContext = symbol.context;
+
+  const resolvedTopics = symbol.value.topics.flatMap((relativeTopicId) => {
+    const topicContext = context.pool.get(
+      'Topic',
+      normaliseRef(entityContext.name, relativeTopicId),
+    )?.context;
+
+    return topicContext ? ([[relativeTopicId, topicContext]] as const) : [];
+  });
+  const validTopicMap = new Map<string, { id: string }>(resolvedTopics);
+
+  const entries: Entries = entityContext.subjects.reduce(
+    (agg: Entries, entitySubjectContext) => {
+      const subject = context.pool.get('Subject', entitySubjectContext.ref);
+      if (!subject) {
+        //shouldn't happen
+        return agg;
+      }
+
+      const subjectDid =
+        context.entities.get(subject.metadata.name)?.did ??
+        subject.context.externalDid;
+      if (!subjectDid) {
+        console.warn(
+          `referenced subject ${entitySubjectContext.ref} without did in trust doc ${symbol.metadata.path}. skipping.`,
+        );
+        //shouldn't happen
+        return agg;
+      }
+
+      Object.entries(subject.value).forEach(([topicId, assertionSet]) => {
+        const topicContext = validTopicMap.get(topicId);
+        if (!topicContext) return;
+
+        const topic = agg[topicContext.id];
+        if (topic) {
+          topic[subjectDid] = assertionSet;
+        }
+      });
+
+      return agg;
+    },
+    Object.fromEntries(
+      resolvedTopics.map(([, topicContext]) => [topicContext.id, {}] as const),
+    ),
+  );
+  const now = new Date();
+  const nowIso = now.toISOString();
+  //this version has already been bumped
+  const version = trustDocContext.version;
+  const doc: TrustEstablishmentDoc = {
+    id: trustDocContext.id,
+    author: entityContext.did,
+    version: version,
+    created: nowIso,
+    validFrom: nowIso,
+    entries: entries,
+  };
+  return doc;
+}
 export type Bundle = {
   environmentName: string;
   entities: BundledEntity[];
 };
 
 async function resolveSymbol(
+  entityContext: EntityContext,
   symbol: NamedSymbolWithContext,
   pool: SymbolPool,
 ): Promise<NamedSymbolWithContext> {
@@ -238,7 +493,7 @@ async function resolveSymbol(
     (key) => {
       resolvedCount++;
       const ref = normaliseRef(symbol.metadata.entityName, key);
-      const resolved = pool.getAny(ref)?.id;
+      const resolved = pool.getAny(ref);
 
       if (resolved === undefined) {
         console.log(
@@ -246,7 +501,7 @@ async function resolveSymbol(
         );
         return '';
       }
-      return resolved;
+      return symbolPath(entityContext, resolved);
     },
   );
 
@@ -276,7 +531,9 @@ async function resolveEntity(
   return {
     context: entity.context,
     symbols: await Promise.all(
-      entity.symbols.map((symbol) => resolveSymbol(symbol, context.pool)),
+      entity.symbols.map((symbol) =>
+        resolveSymbol(entity.context, symbol, context.pool),
+      ),
     ),
   };
 }
@@ -395,6 +652,7 @@ export async function createEntityContext(
       case 'Subject': {
         const subjectWithContext = withContext(symbol, entityName, {
           id: symbol.metadata.name, //this is actually a relative id to the entity
+          externalDid: environment.entities.get(symbol.metadata.name)?.did,
         });
         symbolsWithContext.push(subjectWithContext);
         entityContext.subjects.push({
@@ -406,9 +664,41 @@ export async function createEntityContext(
         //todo: should do this pass through automatically i think
         symbolsWithContext.push(
           withContext(symbol, entityName, {
-            id: '',
+            id: symbolPath(entityContext, symbol),
           }),
         );
+        break;
+      }
+      case 'TrustFramework': {
+        //if the trust doc is inlined then we need to create it and add it as its own symbol
+        const lockedTrustDoc = lock?.context.pool.get(
+          'TrustEstablishmentDoc',
+          toAbsoluteRef(entityName, symbol.metadata.name),
+        )?.context;
+        //need to bump versions
+        //ideally i'd do some sort of compatability check to figure out how or if to bump
+
+        const trustDocContext = lockedTrustDoc
+          ? { id: lockedTrustDoc.id, did: lockedTrustDoc.publisherDid }
+          : provider.draftTrustDoc
+          ? await provider.draftTrustDoc(entityContext.did)
+          : { id: uuidv4(), did: undefined };
+        const trustDocVersionedContext = {
+          id: trustDocContext.id,
+          publisherDid: trustDocContext.did,
+          version: lockedTrustDoc?.version
+            ? bumpVersion(lockedTrustDoc.version)
+            : '1',
+        };
+        //todo: only bump version if the trust doc has actually changed
+        symbolsWithContext.push(
+          withContext(symbol, entityName, {
+            id: symbolPath(entityContext, symbol),
+            trustDoc: trustDocVersionedContext,
+          }),
+        );
+
+        break;
       }
     }
   }
@@ -441,7 +731,9 @@ export async function createContext(
     entities.flatMap(async (entity) => ({
       context: entity.context,
       symbols: await Promise.all(
-        entity.symbols.map((symbol) => resolveSymbol(symbol, tempPool)),
+        entity.symbols.map((symbol) =>
+          resolveSymbol(entity.context, symbol, tempPool),
+        ),
       ),
     })),
   );

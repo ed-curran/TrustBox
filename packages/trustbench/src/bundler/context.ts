@@ -10,6 +10,8 @@ import {
   TopicSymbol,
   TrustEstablishmentDoc,
   TrustEstablishmentDocSymbol,
+  TrustFramework,
+  TrustFrameworkSymbol,
 } from '../modelSymbol';
 import { DidConfigurationConfig } from '../environment';
 import { SymbolPool } from './symbolPool';
@@ -18,7 +20,7 @@ type IdContext = {
   id: string;
 };
 
-type TrustDocContext = {
+export type TrustDocContext = {
   readonly type: TrustEstablishmentDocSymbol['type'];
   readonly context: {
     readonly id: string;
@@ -27,7 +29,7 @@ type TrustDocContext = {
   };
   readonly value: TrustEstablishmentDoc;
 };
-type TopicContext = {
+export type TopicContext = {
   readonly type: TopicSymbol['type'];
   readonly context: IdContext;
   readonly value: Topic;
@@ -39,7 +41,10 @@ type CredentialSchemaContext = {
 };
 type SubjectContext = {
   readonly type: SubjectSymbol['type'];
-  readonly context: IdContext;
+  readonly context: {
+    id: string;
+    externalDid?: string;
+  };
   readonly value: Subject;
 };
 type TemplateContext = {
@@ -47,13 +52,21 @@ type TemplateContext = {
   readonly context: IdContext; //this isn't used. why do we need this
   readonly value: TemplateSymbol['value'];
 };
-
+type TrustFrameworkContext = {
+  type: TrustFrameworkSymbol['type'];
+  readonly context: {
+    id: string;
+    trustDoc: TrustDocContext['context'];
+  }; //this isn't used. why do we need this
+  readonly value: TrustFrameworkSymbol['value'];
+};
 export type SymbolWithContext =
   | CredentialSchemaContext
   | TopicContext
   | TrustDocContext
   | SubjectContext
-  | TemplateContext;
+  | TemplateContext
+  | TrustFrameworkContext;
 
 export type SymbolContextMetadata = {
   readonly name: string;
@@ -125,4 +138,27 @@ export function toContextMetadata(
     extension: symbolMetadata.extension,
     raw: symbolMetadata.raw,
   };
+}
+
+//deprecate this probably
+export function symbolPath(entityContext: EntityContext, symbol: NamedSymbol) {
+  return metadataPath(entityContext, symbol.metadata);
+}
+
+export function metadataPath(
+  entityContext: EntityContext,
+  metadata: SymbolMetadata,
+) {
+  return `${entityContext.origin ? `${entityContext.origin}/` : ''}${
+    metadata.namespace.length > 0 ? metadata.namespace.join('/') + '/' : ''
+  }${metadata.name}.${metadata.extension}`; //todo: output extension may not always be same as input
+}
+
+export function metadataDir(
+  entityContext: EntityContext,
+  metadata: SymbolMetadata,
+) {
+  return `${entityContext.origin ? `${entityContext.origin}/` : ''}${
+    metadata.namespace.length > 0 ? metadata.namespace.join('/') : ''
+  }`; //todo: output extension may not always be same as input
 }

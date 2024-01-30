@@ -16,6 +16,8 @@ import { createFilesystemPublisher } from './publisher/createFilesystemPublisher
 import { createWeb5Publisher } from './web5/createWeb5Publisher';
 import { createWeb5Agent } from './web5/createWeb5';
 import { getWeb5Provider } from './web5/web5Provider';
+// @ts-expect-error esm stuff
+import type { CredentialPayload, VerifiableCredential } from '@veramo/core';
 
 const fsReadDeps: FsReadDeps = nodeFsReadDeps(fs.promises);
 const fsWriteDeps = nodeFsWriteDeps(fs.promises);
@@ -120,4 +122,44 @@ export async function build(
   }
 
   await saveEnvironmentLock(fsWriteDeps, newLock, environmentName);
+}
+
+//todo: this probably shouldn't exist
+export async function signCredential(
+  environmentName: string,
+  entityName: string,
+  unsignedCredential: CredentialPayload,
+  kmsSecretKey?: string,
+): Promise<VerifiableCredential> {
+  const environment = await loadEnvironment(
+    fsReadDeps,
+    environmentName,
+    kmsSecretKey,
+  );
+
+  if (!environment) throw Error('got no environment');
+  const entity = environment?.environmentLock?.context.entities.get(entityName);
+  if (!entity) throw Error('got no user');
+
+  const agent = await createVeramoAgent(
+    environment.environment.kmsSecretKey,
+    environmentName,
+  );
+  // const identifier = await agent.didManagerGet({ did: entity.did });
+  // const key = identifier.keys[0]!;
+  const withIssuer = {
+    ...unsignedCredential,
+    sub: entity.did,
+    issuer: entity.did,
+  };
+  const credential = await agent.createVerifiableCredential({
+    //keyRef: key.kid,
+    proofFormat: 'jwt',
+    credential: withIssuer,
+    // header: {
+    //   kid: key.kid,
+    // },
+  });
+
+  return credential;
 }

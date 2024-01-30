@@ -42,12 +42,31 @@ export type TemplateSymbol = {
   value: string;
 };
 
+export type TrustFramework = {
+  trustEstablishmentDoc: {
+    credentialsTopic: string;
+    memberTopic: string;
+    topics: string[] | undefined;
+  };
+  staticApi:
+    | {
+        extensionlessEndpoints: boolean;
+      }
+    | undefined
+    | boolean;
+};
+export type TrustFrameworkSymbol = {
+  type: 'TrustFramework';
+  value: TrustFramework;
+};
+
 export type ModelSymbol =
   | TopicSymbol
   | SubjectSymbol
   | TrustEstablishmentDocSymbol
   | CredentialSchemaSymbol
-  | TemplateSymbol;
+  | TemplateSymbol
+  | TrustFrameworkSymbol;
 export type NamedSymbol = Named<ModelSymbol>;
 export type SymbolTag = ModelSymbol['type'];
 

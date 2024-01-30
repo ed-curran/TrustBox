@@ -44,9 +44,8 @@ export class SymbolPool {
     }
   }
 
-  getAny(absoluteRef: string): NamedSymbolWithContext['context'] | undefined {
-    const context = this.symbols.get(absoluteRef);
-    return context?.context;
+  getAny(absoluteRef: string): NamedSymbolWithContext | undefined {
+    return this.symbols.get(absoluteRef);
   }
 
   get<S extends SymbolWithContext['type']>(
