@@ -30,11 +30,16 @@ import {
   TrustDocContext,
   withContext,
 } from './context';
-import { parseTrustFrameworkDoc } from '../trustlib/trustframework/trustFrameworkDoc';
-import { MemberOfPDTF } from '../trustlib/trustframework/generated/pdtfParticipant';
-import { CredentialsOfThePDTF } from '../trustlib/trustframework/generated/pdtfCredentials';
+import {
+  parseTrustFrameworkDoc,
+  TrustFrameworkIndex,
+} from '../trustlib/trustframework/trustFrameworkDoc';
+import { TrustFrameworkCredentials } from '../trustlib/trustframework/generated/tfCredentials';
+import { TrustFrameworkIssuer } from '../trustlib/trustframework/generated/tfIssuer';
+import { TrustFrameworkVerifier } from '../trustlib/trustframework/generated/tfVerifier';
+import { TrustFrameworkMember } from '../trustlib/trustframework/generated/tfParticipant';
 
-type TfCredential = CredentialsOfThePDTF['credentials'][number];
+type TfCredential = TrustFrameworkCredentials['credentials'][number];
 
 export type Environment = {
   name: string;
@@ -188,6 +193,34 @@ export async function bundleEntity(
           );
           break;
         }
+        const resolvedIssuerTopic = context.pool.get(
+          'Topic',
+          normaliseRef(
+            entityContext.name,
+            symbol.value.trustEstablishmentDoc.issuerTopic,
+          ),
+        )?.context;
+        if (!resolvedIssuerTopic) {
+          console.log(
+            'could not resolve issuerTopic in trustframework: ' +
+              symbol.metadata.path,
+          );
+          break;
+        }
+        const resolvedVerifierTopic = context.pool.get(
+          'Topic',
+          normaliseRef(
+            entityContext.name,
+            symbol.value.trustEstablishmentDoc.verifierTopic,
+          ),
+        )?.context;
+        if (!resolvedVerifierTopic) {
+          console.log(
+            'could not resolve memberTopic in trustframework: ' +
+              symbol.metadata.path,
+          );
+          break;
+        }
         const resolvedCredentialsTopic = context.pool.get(
           'Topic',
           normaliseRef(
@@ -218,6 +251,8 @@ export async function bundleEntity(
             topics: [
               symbol.value.trustEstablishmentDoc.credentialsTopic,
               symbol.value.trustEstablishmentDoc.memberTopic,
+              symbol.value.trustEstablishmentDoc.issuerTopic,
+              symbol.value.trustEstablishmentDoc.verifierTopic,
             ].concat(symbol.value.trustEstablishmentDoc.topics ?? []),
           },
           metadata: symbol.metadata,
@@ -229,11 +264,13 @@ export async function bundleEntity(
           entityContext,
           trustDocSymbol,
         );
-        const index = {
+        const index: TrustFrameworkIndex = {
           entryPoint,
           self: metadataPath(entityContext, indexMetadata),
           credentialsTopic: resolvedCredentialsTopic.id,
           memberTopic: resolvedMemberTopic.id,
+          issuerTopic: resolvedIssuerTopic.id,
+          verifierTopic: resolvedVerifierTopic.id,
         };
         const result = parseTrustFrameworkDoc(outputTrustDoc, index);
         if (result.status === 'failure') {
@@ -270,17 +307,27 @@ export async function bundleEntity(
         //write the static api
         type ApiParticipantEntry = {
           did: string;
-          member: MemberOfPDTF;
+          member: TrustFrameworkMember;
+          issuer: TrustFrameworkIssuer | undefined;
+          verifier: TrustFrameworkVerifier | undefined;
         };
         const participants = new Map<string, ApiParticipantEntry>();
         type ApiCredentialSchemaEntry = {
           tfCredentialSchema: TfCredential;
+          issuers: {
+            did: string;
+          }[];
+          verifiers: {
+            did: string;
+          }[];
         };
         const credentialSchemas = new Map<string, ApiCredentialSchemaEntry>();
         for (const tfCredentialSchema of trustFrameworkDoc.entries
           .credentialsTopic.owner.credentials) {
           credentialSchemas.set(tfCredentialSchema.type, {
             tfCredentialSchema: tfCredentialSchema,
+            issuers: [],
+            verifiers: [],
           });
         }
 
@@ -290,7 +337,60 @@ export async function bundleEntity(
           participants.set(participantDid, {
             did: participantDid,
             member: memberAssertion,
+            issuer: undefined,
+            verifier: undefined,
           });
+        }
+
+        for (const participantDid in trustFrameworkDoc.entries.issuerTopic) {
+          const issuerAssertion =
+            trustFrameworkDoc.entries.issuerTopic[participantDid]!;
+          const participant = participants.get(participantDid);
+          if (!participant) {
+            console.warn(
+              'could not assign issuer role to entity that is not a trust framework member',
+            );
+            continue;
+          }
+          participant.issuer = issuerAssertion;
+          //list this participant as an issuer in the credential schema
+          for (const issuerCredential of issuerAssertion.credentials) {
+            const credentialSchema = credentialSchemas.get(
+              issuerCredential.type,
+            );
+            if (!credentialSchema) {
+              console.warn(
+                `issuer role names credential schema ${issuerCredential.type} that is not part of trust framework ${symbol.metadata.path}`,
+              );
+              continue;
+            }
+            credentialSchema.issuers.push({ did: participant.did });
+          }
+        }
+
+        for (const participantDid in trustFrameworkDoc.entries.verifierTopic) {
+          const verifierAssertion =
+            trustFrameworkDoc.entries.verifierTopic[participantDid]!;
+          const participant = participants.get(participantDid);
+          if (!participant) {
+            console.warn(
+              'could not assign verifier role to entity that is not a trust framework member',
+            );
+            continue;
+          }
+          participant.verifier = verifierAssertion;
+          for (const verifierCredential of verifierAssertion.credentials) {
+            const credentialSchema = credentialSchemas.get(
+              verifierCredential.type,
+            );
+            if (!credentialSchema) {
+              console.warn(
+                `issuer role names credential schema ${verifierCredential.type} that is not part of trust framework ${symbol.metadata.path}`,
+              );
+              continue;
+            }
+            credentialSchema.verifiers.push({ did: participant.did });
+          }
         }
 
         const apiIndex: {

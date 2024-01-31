@@ -1,8 +1,7 @@
 import { compile } from 'json-schema-to-typescript';
 import { writeFile } from 'fs/promises';
-import { readdirSync, existsSync, mkdirSync } from 'fs';
+import { readdirSync, existsSync, mkdirSync, unlinkSync } from 'fs';
 import path from 'path';
-import { rmdirSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 
 const IN_SCHEMA_DIR = 'schemas';
@@ -13,6 +12,11 @@ async function compileAll(parent = '.') {
   //rm(outDir, {recursive})
   if (!existsSync(outDir)) {
     mkdirSync(outDir);
+  }
+  //delete existing files
+  //don't do this recursively because that scares me
+  for (const file of readdirSync(outDir)) {
+    await unlinkSync(path.join(outDir, file));
   }
 
   const files = readdirSync(inDir);

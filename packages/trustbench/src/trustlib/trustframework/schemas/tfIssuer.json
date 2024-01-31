@@ -1,7 +1,7 @@
 {
-  "$id": "pdtfCredentials",
+  "$id": "tfIssuer",
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "title": "Credentials of the PDTF",
+  "title": "Trust Framework Issuer",
   "type": "object",
   "properties": {
     "credentials": {
@@ -9,18 +9,17 @@
       "items": {
         "type": "object",
         "properties": {
-          "schema": {
-            "type": "string"
-          },
           "type": {
             "type": "string"
           }
         },
-        "required": ["schema", "type"],
+        "required": ["type"],
         "additionalProperties": false
       }
     }
   },
-  "required": ["credentials"],
+  "required": [
+    "credentials"
+  ],
   "additionalProperties": false
 }

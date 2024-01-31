@@ -1,7 +1,7 @@
 {
-  "$id": "pdtfParticipant",
+  "$id": "tfParticipant",
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "title": "Member of PDTF",
+  "title": "Trust Framework Member",
   "type": "object",
   "properties": {
     "name": {

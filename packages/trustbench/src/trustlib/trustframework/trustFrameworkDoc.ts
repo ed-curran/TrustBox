@@ -1,25 +1,32 @@
 import { Entries, TrustEstablishmentDoc } from '../trustEstablishmentDoc';
 import {
-  MemberOfPDTF,
-  pdtfParticipantSchema as tfMemberSchema,
-} from './generated/pdtfParticipant';
+  tfParticipantSchema as tfMemberSchema,
+  TrustFrameworkMember,
+} from './generated/tfParticipant';
 import {
-  CredentialsOfThePDTF,
-  pdtfCredentialsSchema as tfCredentialsSchema,
-} from './generated/pdtfCredentials';
+  tfCredentialsSchema as tfCredentialsSchema,
+  TrustFrameworkCredentials,
+} from './generated/tfCredentials';
 import Ajv, { JSONSchemaType } from 'ajv';
 import addFormats from 'ajv-formats';
 import { Result } from '../../symbolLoader';
+import { tfIssuerSchema, TrustFrameworkIssuer } from './generated/tfIssuer';
+import {
+  tfVerifierSchema,
+  TrustFrameworkVerifier,
+} from './generated/tfVerifier';
 
 const ajv = new Ajv();
 addFormats(ajv);
 
 export type TrustFrameworkDocEntries = {
   credentialsTopic: {
-    owner: CredentialsOfThePDTF;
-    [key: string]: CredentialsOfThePDTF;
+    owner: TrustFrameworkCredentials;
+    [key: string]: TrustFrameworkCredentials;
   };
-  memberTopic: Record<string, MemberOfPDTF>;
+  memberTopic: Record<string, TrustFrameworkMember>;
+  issuerTopic: Record<string, TrustFrameworkIssuer>;
+  verifierTopic: Record<string, TrustFrameworkVerifier>;
 };
 
 //is this stupid?
@@ -30,6 +37,8 @@ export type TrustFrameworkIndex = {
   entryPoint: string;
   credentialsTopic: string;
   memberTopic: string;
+  issuerTopic: string;
+  verifierTopic: string;
   api?: string;
 };
 export function parseTrustFrameworkDoc(
@@ -58,6 +67,14 @@ export function parseTrustFrameworkDoc(
         type: 'object',
         additionalProperties: tfMemberSchema,
       },
+      [config.issuerTopic]: {
+        type: 'object',
+        additionalProperties: tfIssuerSchema,
+      },
+      [config.verifierTopic]: {
+        type: 'object',
+        additionalProperties: tfVerifierSchema,
+      },
     },
     required: [config.credentialsTopic, config.memberTopic],
     additionalProperties: true,
@@ -75,16 +92,28 @@ export function parseTrustFrameworkDoc(
     };
   }
   //gross but hopefully fast
-  const memberTopic = transformedDoc.entries[config.memberTopic]!;
-  transformedDoc.entries['memberTopic'] = memberTopic;
-  delete transformedDoc.entries[config.memberTopic];
-
+  //rename credentials topic, also need to rename the trust assertion entry for the author inside of it
   const credentialsTopic = transformedDoc.entries[config.credentialsTopic]!;
   credentialsTopic['owner'] = credentialsTopic[trustEstablishmentDoc.author]!;
   delete credentialsTopic[trustEstablishmentDoc.author];
 
   transformedDoc.entries['credentialsTopic'] = credentialsTopic;
   delete transformedDoc.entries[config.credentialsTopic];
+
+  //swap member topic
+  transformedDoc.entries['memberTopic'] =
+    transformedDoc.entries[config.memberTopic]!;
+  delete transformedDoc.entries[config.memberTopic];
+
+  //swap issuer topic
+  transformedDoc.entries['issuerTopic'] =
+    transformedDoc.entries[config.issuerTopic]!;
+  delete transformedDoc.entries[config.issuerTopic];
+
+  //swap verifier topic
+  transformedDoc.entries['verifierTopic'] =
+    transformedDoc.entries[config.verifierTopic]!;
+  delete transformedDoc.entries[config.verifierTopic];
 
   return {
     status: 'success',

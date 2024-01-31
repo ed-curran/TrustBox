@@ -46,6 +46,8 @@ export type TrustFramework = {
   trustEstablishmentDoc: {
     credentialsTopic: string;
     memberTopic: string;
+    issuerTopic: string;
+    verifierTopic: string;
     topics: string[] | undefined;
   };
   staticApi:
